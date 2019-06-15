@@ -1,6 +1,6 @@
-name: "R Markdown Websites Tutorial"
+name: "fastQsee"
 navbar:
-  title: "HOME"
+  title: "Home"
   left:
     - text: "Introduction"
       href: Introduction.html
@@ -13,7 +13,7 @@ navbar:
 output_dir: "."
 output:
   html_document:
-    theme: yeti
-    highlight: textmate
-#    include:
-#      after_body: _footer.html
+    theme: cerulean
+    highlight: kate
+    include:
+      after_body: _footer.html
