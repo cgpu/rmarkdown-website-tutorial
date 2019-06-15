@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>fastQsee: A tutorial on how to use Docker containers on the Deploit platform to quickly generate a plot-ful FastQC report</title>
+
+<script src="site_libs/jquery-3.3.1/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<script src="site_libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="site_libs/jquery-migrate-3.0.0/jquery-migrate.min.js"></script>
+<link href="site_libs/slick-1.6.0/slick/slick.css" rel="stylesheet" />
+<link href="site_libs/slick-1.6.0/slick/slick-theme.css" rel="stylesheet" />
+<script src="site_libs/slick-1.6.0/slick/slick.min.js"></script>
+<link href="site_libs/slickR-0.0.1/slickR.css" rel="stylesheet" />
+<script src="site_libs/slickR-binding-0.2.4/slickR.js"></script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #a0a0a0;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+div.sourceCode
+  { color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span. { color: #1f1c1b; } /* Normal */
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+code span.an { color: #ca60ca; } /* Annotation */
+code span.at { color: #0057ae; } /* Attribute */
+code span.bn { color: #b08000; } /* BaseN */
+code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #924c9d; } /* Char */
+code span.cn { color: #aa5500; } /* Constant */
+code span.co { color: #898887; } /* Comment */
+code span.cv { color: #0095ff; } /* CommentVar */
+code span.do { color: #607880; } /* Documentation */
+code span.dt { color: #0057ae; } /* DataType */
+code span.dv { color: #b08000; } /* DecVal */
+code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code span.fl { color: #b08000; } /* Float */
+code span.fu { color: #644a9b; } /* Function */
+code span.im { color: #ff5500; } /* Import */
+code span.in { color: #b08000; } /* Information */
+code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code span.op { color: #1f1c1b; } /* Operator */
+code span.ot { color: #006e28; } /* Other */
+code span.pp { color: #006e28; } /* Preprocessor */
+code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #ff5500; } /* SpecialString */
+code span.st { color: #bf0303; } /* String */
+code span.va { color: #0057ae; } /* Variable */
+code span.vs { color: #bf0303; } /* VerbatimString */
+code span.wa { color: #bf0303; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("fastQsee.Rmd");
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="first_observations.html">First Observations</a>
+</li>
+<li>
+  <a href="basic_workflow.html">Basic Workflow</a>
+</li>
+<li>
+  <a href="getting_sophisticated.html">Getting Sophisticated</a>
+</li>
+<li>
+  <a href="your_turn.html">Your Turn</a>
+</li>
+<li>
+  <a href="fastQsee.html">fastQsee</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">fastQsee: A tutorial on how to use Docker containers on the <a href="https://lifebit.page.link/deploit">Deploit platform</a> to quickly generate a plot-ful FastQC report</h1>
+
+</div>
+
+
+<p><br><br></p>
+<p><img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/docker_x_deploit_gif_blogpost_header.gif?raw=true" /></p>
+<p><br><br></p>
+<div id="tldr" class="section level1">
+<h1>TL;DR</h1>
+<p><br></p>
+<div id="why-call-it-fastqsee-though" class="section level2">
+<h2>Why call it ‘fastQsee’ though 🤔?</h2>
+<p>Well, because you will get to see 👀 a FastQC report of your FASTQ file very fast! Installation-less and quick, made possible by a little container magic from Docker and powered by Deploit.</p>
+<p><br></p>
+</div>
+<div id="what-will-i-learn" class="section level2">
+<h2>What will I learn?</h2>
+<p>This tutorial is a primer, on how to go modular and use Docker 🐳 containers for your bioinformatics analysis tasks. More specifically, we will learn how to use the <a href="https://lifebit.page.link/deploit"  target="_blank"><b>Deploit platform</b></a> to assemble and deploy on cloud a reproducible and sharable bioinformatics workflow. <br></p>
+<p>We will assemble the following resources into a workflow on the <strong>Deploit</strong> platform: <br></p>
+<ul>
+<li>🐳 a <strong>Docker container</strong>, from DockerHub</li>
+<li>🚀 a <strong>curated pipeline</strong>, available on the <strong>Deploit</strong> platform</li>
+<li>📜 a 1000genomes project <strong><code>fastq.gz</code></strong> file, fetched from an EMBL-EBI FTP site</li>
+</ul>
+<p><br></p>
+</div>
+<div id="last-things-first-what-results-will-i-get-from-the-fastqc-tool-on-deploit" class="section level2">
+<h2>Last things first: What results will I get from the FastQC tool on Deploit?</h2>
+<p>After completing this mini workflow on the Deploit platform, you will have:<br><br> <strong>1) a plot-full FastQC html report</strong>, <br> with key metrics to assess the quality of your FASTQ file <br></p>
+<p><strong>2) sharable links to your <code>Job Page</code></strong> s ,<br> with interactive plots and information about the resources and the results.</p>
+<p>You can access the <code>Jobs Pages</code> from the sharable urls we created for this example: <br></p>
+<ul>
+<li>for retrieving the 1000genomes fastq.gz file : 🔗 <a href="https://lifebit.page.link/wgetGunzipper__sharable_page"  target="_blank"><code>wgetGunzipper</code></b></a> <br></li>
+<li>for generating the FastQC html report: 🔗 <a href="https://lifebit.page.link/Job_Page_sharable_fastQsee"  target="_blank"><code>fastQsee</code></b></a><br></li>
+</ul>
+<p>and take a look at what a <code>Job Page</code> looks like below:</p>
+<p><br><br> <a href="https://lifebit.page.link/lifebit-deploit" target="_blank"><img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/overview_of_job_page.gif?raw=true" ></a> <br><br></p>
+<p>Also, you will have the sharable link for the Deploit page job, where you can find the html file of this tutorial (and also the rmarkdown file that created it!). Check below:</p>
+<br><br>
+<p>
+<iframe src="https://lifebit.page.link/fastQsee_Job_Page" width="100%" height="600">
+</iframe>
+</p>
+<p><br><br></p>
+<p><br><br> <a href="https://lifebit.page.link/fastQsee_Job_Page" target="_blank"> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/download_fastqsee_from_deploit.gif?raw=true"> </a> <br><br></p>
+<p>You can then download them, and you will have a tutorial to guide you on assembling and running reproducible bioinformatics workflows on the Deploit platfom. Now, let’s move on with the step by step guide on how to run the FatsQC on Deploit.</p>
+<p><br></p>
+</div>
+</div>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p><br></p>
+<div id="why-do-i-need-a-fastqc-report" class="section level2">
+<h2>Why do I need a FastQC report?</h2>
+<p>The analysis journey of NGS generated FASTQ files should always start, as with any other data analysis task, with a robust <strong>E</strong> xploratory <strong>D</strong> ata <strong>A</strong> nalysis (<strong>EDA</strong>) bout.</p>
+<br><br>
+<p style="text-align:center;">
+<img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/keep-calm-generator-twitter-cover-perform-eda.jpg?raw=true" style="width: 90%; height: 90%">
+</p>
+<p><br><br></p>
+<p>The <a href="https://lifebit.page.link/FastQC_Official_Page"  target="_blank">FastQC tool</b></a> (Andrews S. et al, 2010), facilitates this task by providing a plot-ful html report, with key metrics for read quality.</p>
+<p style="text-align:center;">
+<p><b> <font size="3" color="black">FastQC quality assesment plots</font> </b></p>
+<p><br><br></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">list_of_img =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_base_sequence_quality.png?raw=true&quot;</span>,</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">                <span class="st">&quot;https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_sequence_content.png?raw=true&quot;</span>,</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">                <span class="st">&quot;https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_sequence_quality_scores.png?raw=true&quot;</span>,</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">                <span class="st">&quot;https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_tile_sequence_quality.png?raw=true&quot;</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">                )</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">slickR<span class="op">::</span><span class="kw">slickR</span>(<span class="dt">obj     =</span> list_of_img,</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">               <span class="dt">padding =</span> <span class="st">&quot;10&quot;</span> ,</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">               <span class="dt">width   =</span> <span class="st">&#39;70%&#39;</span>,</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">               <span class="dt">height  =</span> <span class="dv">300</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">)</a></code></pre></div>
+<style>#htmlwidget-52772c368444061ff097  {margin-left:auto;margin-right:auto}</style>
+<div id="htmlwidget-52772c368444061ff097" style="width:70%;height:300px;" class="slickR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-52772c368444061ff097">{"x":[{"divName":"baseDiv","links":1,"divType":"img","padding":"90%","obj":["https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_base_sequence_quality.png?raw=true","https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_sequence_content.png?raw=true","https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_sequence_quality_scores.png?raw=true","https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/per_tile_sequence_quality.png?raw=true"],"slickOpts":{"dots":true}}],"evals":[],"jsHooks":[]}</script>
+<p><br><br></p>
+<p>If not familiar with how to interpret the plots, you can start by taking a look at the <font size="2" color="green"><b>good</b></font> and <font size="2" color="red"><b>bad</b></font> quality sequencing data examples that are available in the <a href="https://lifebit.page.link/FastQC_Official_Page" target="_blank"><b>FastQC tool official webpage</b></a>.</p>
+<p>There is also a really great presentation on <em>“RNA-seq quality control and pre-processing”</em> by <a href="https://lifebit.page.link/mikaelhusstwitter" target="_blank"><b>Mikael Huss</b></a> you can check out <a href="https://lifebit.page.link/mikaelhussRNAseq_quality" target="_blank"><b>here</b></a>. <br></p>
+<br><br>
+<p style="text-align:center;">
+<a href="https://lifebit.page.link/mikaelhussRNAseq_quality"  target="_blank"> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/RNAseq_quality_presentation.PNG?raw=true" style="width: 75%; height: 75%"> </a>
+</p>
+<p><br><br></p>
+</div>
+<div id="what-resources-do-i-need-to-generate-a-fastqc-report-on-the-deploit-platform-spoiler-hint-links" class="section level2">
+<h2>What resources do I need to generate a <strong>FastQC report</strong> on the Deploit platform? (spoiler hint: links!)</h2>
+<p>In this tutorial, we will bring all the required resources to generate a FastQC report on the <strong>Deploit</strong> platform. For the most part the resources we will need can be provided in the form of <strong>links</strong>, that point to the following four fundamental ingredients of any data analysis pipeline:</p>
+<p><br><br></p>
+<div id="i-data" class="section level3">
+<h3>i) DATA <br></h3>
+<p>The main ingredient. For this example we will use a <code>FASTQ.gz</code> file from the 1000genomes project. We only need the <strong>url</strong> that points to the file, hosted in the an EMBL-EBI FTP server. You can find the one we selected in the following link:<br> <a href="https://lifebit.page.link/1000fastq" target="_blank"><b><code><a href="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG00096/sequence_read/SRR062634.filt.fastq.gz" class="uri">ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG00096/sequence_read/SRR062634.filt.fastq.gz</a>&gt;</code></b></a></p>
+<p><br>(link to parent repo)</p>
+<p><br></p>
+</div>
+<div id="ii-code" class="section level3">
+<h3>ii) CODE</h3>
+<p>The instructions, the recipe for the transformations that will be performed on our raw data. The FastQC tool takes as input uncompressed FASTQ format data. So we need code for <strong>two main tasks</strong> to obtain the FastQC report.</p>
+<p><br></p>
+<div id="task-1-download-uncompress-and-optional-but-handy-rename-the-fastq.gz-file" class="section level4">
+<h4>TASK 1: <strong>Download</strong>, <strong>uncompress</strong> and <em>(optional but handy)</em> <strong>rename</strong> the fastq.gz file <br></h4>
+<p>We will use the following <code>&gt;_ bash</code> command to do exactly that:</p>
+<ul>
+<li><code>wget</code>: fetches from FTP server and download</li>
+<li><code>gunzip</code>: uncompresses .gz file</li>
+<li><code>&gt;</code>: renames</li>
+</ul>
+<pre><code>wget -O - https://lifebit.page.link/ftp_SRR062634_fastq_gz | gunzip -c &gt; SRR062634.fastq </code></pre>
+<p>For a more detailed breakdown of the command powered by Ubuntu’s manpage repository, you can check <a href="https://lifebit.page.link/ExplainShell_fastQsee" target="_blank"><b>ExplainShell.com</b></a>. <br> <br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/ExplainShell.gif?raw=true"> <br> <br> Feel free to swap the shortened <code>https://lifebit.page.link/ftp_SRR062634_fastq_gz</code> with the original <code>ftp</code> link provided above. The output of this command will be the uncompressed FASTQ file named <code>SRR062634.fastq</code> .</p>
+<p><br></p>
+</div>
+<div id="task-2-run-the-fastqc-tool-with-the-uncompressed-file-as-input-to-generate-the-fastq-report." class="section level4">
+<h4>TASK 2: Run the FastQC tool with the uncompressed file as input to generate the FASTQ report.</h4>
+<p>For this we will use one of the pipelines already available in the <strong><code>PIPELINES &gt; PUBLIC PIPELINES &amp; TOOLS</code></strong> section on the Deploit platform. The only input required for the report is the uncompressed FASTQ file we acquired from the previous step.</p>
+<p><br></p>
+</div>
+</div>
+<div id="iii-os-tools" class="section level3">
+<h3>iii) OS &amp; TOOLS</h3>
+<p>The environment and tools that will facilitate the transformation of our data.<br></p>
+<p>We will obviously use <strong>Docker</strong> , the <strong>FastQC</strong> tool and its dependencies (eg. a suitable <strong>J</strong> ava <strong>R</strong> untime <strong>E</strong> nvironment). However, <strong>no installation is required</strong> on your machine because everything can be available on the <b><a href="https://lifebit.page.link/deploit" target="_blank">Deploit platform</b></a>, installation free. Docker containers will serve as our software microenvironments that will host each task of the workflow.</p>
+<p><br></p>
+<div id="task-1-port-docker-container-from-docker-hub-to-deploit" class="section level4">
+<h4>TASK 1: Port Docker container from Docker Hub to Deploit</h4>
+<p>For the first task mentioned above, to retrieve and uncompress the fastq.gz file, we will port a Docker container with a lightweight Linux distribution (we only need <code>&gt;_bash</code> for <code>wget</code> and <code>gunzip</code>) from Docker Hub by providing the link to the respective repository. You can find the docker container we have chosen (with <code>Alpine</code> Linux) in the following link:<br></p>
+<p><a href="https://hub.docker.com/r/bashell/alpine-bash" target="_blank"><b><a href="https://hub.docker.com/r/frolvlad/alpine-bash" class="uri">https://hub.docker.com/r/frolvlad/alpine-bash</a></b></a>. <br></p>
+<p>We will use this Docker container for our combo <code>wget | gunzip &gt;</code> command and deploy the job over cloud from the Deploit platform. The uncompressed file will be available in the <code>DATA &gt; JOB RESULTS</code> section in the platform and available to be used as input in other pipelines.</p>
+<p><br></p>
+</div>
+<div id="task-2-use-the-fastqc-tool-already-available-in-the-library-of-curated-pipelines-on-deploit" class="section level4">
+<h4>TASK 2: Use the <strong>FastQC</strong> tool, already available in the library of curated pipelines on Deploit</h4>
+<p>All we need for this is to select the <code>fastqc</code> pipeline from the library of curated pipelines available on the Deploit platform. As input, we will use the output file from the previous step, the uncompressed FASTQ file. The FASTQ file can be accessed in the <code>DATA &gt; JOB RESULTS</code> section in the platform.</p>
+<p><br></p>
+</div>
+</div>
+<div id="iv-resources" class="section level3">
+<h3>iv) RESOURCES</h3>
+<p>Power! To spin all these up and generate our results.</p>
+<p>Deploit brings all <strong>four</strong> required resources in one place. Deploit orchestrates the deployment of your jobs over cloud. If you don’t have a cloud account yet, you can still try the platform. Upon registration, we provide you with a Lifebit cloud account with preloaded credits, so that you run your first analyses <a href="https://lifebit.page.link/lifebit-deploit" target="_blank"><img src="https://img.shields.io/badge/powered%20by-Deploit-blue.svg" ></a>. If you want to have access to your own resources (data, credits) you can link your own cloud account.</p>
+<p><br></p>
+</div>
+</div>
+<div id="why-not-install-everything-i-need-and-run-fastqc-on-my-machine-instead" class="section level2">
+<h2>Why not install everything I need and run FastQC on my machine instead?</h2>
+<p>In principle, you could actually easily install the dependencies for running FastQC on your own machine. But this tutorial is more about learning how to use Deploit to easily combine resources (code from GitHub, containers from Docker Hub) to assemble multi-step bioinformatics workflows. This <code>fastQsee</code> pipeline will serve as our dummy example to go through the steps. <a href="https://lifebit.page.link/lifebit-deploit" target="_blank"><b>Deploit</b></a> enables you to structure your workflows as an assembly of individual, self contained units of computation (<code>jobs</code>), by bringing all the required resources to run an analysis (data, code, os &amp; tools, computational resources) in one place. Each step in a bioinformatics workflow, will most likely utilize different tools and have different dependencies. But why not install all the tools on one machine, and run everything there, right? Well, for starters, dependencies!</p>
+<br><br>
+<p style="text-align:center;">
+<img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/dependencies_everywhere.jpg?raw=true">
+</p>
+<p><br><br></p>
+<p>We all know that it’s a hustle to make all the tools play nice together. There are several reasons why bioinformaticians have started joining developers and data scientists, and are slowly abandoning the monolithic, all-in-one place analysis environment approach and shifting towards more robust, modular and portable environment solutions. While virtualization and <a href="https://lifebit.page.link/brief_history_of_containers" target="_blank"><b>containers have been around for quite some time</b></a>, Docker has really revolutionized the way we work the past few years. In a bioinformatics workflow, each process can utilize a different container as an execution microenvironment, with a main focus on preventing dependencies conflicts and ensuring reproducibility.</p>
+<p><br></p>
+<p>This <strong>modularity</strong> also unlocks many cool features as a positive side effect: <br> <br>1) <strong>Portability</strong> : Installation (and hustle!) free run on any another machine <br>2) <strong>Cloudability</strong> : Easily deploy <b><a href="https://lifebit.page.link/thereisnocloud" target="_blank">on cloud</a></b> <br>3) <strong>Reproducibility</strong> : Allow for someone else to run the shame pipeline <br>4) <strong>Frictionless Retouching:</strong> Allows for easily removing, adding or retouching individual processes without affecting the rest <br>5) <strong>Isolation of Dependencies:</strong> Conflicting dependencies are isolated <br>6) <strong>Same tool, different tool version</strong>: Ability to use the same tool, but a different version of it in different processes if needed (legacy code in bioinformatics tools anyone?)</p>
+<p><br><br></p>
+</div>
+</div>
+<div id="step-by-step-tutorial-deploit-in-action-aka-in-gifs" class="section level1">
+<h1>Step-By-Step Tutorial: Deploit in action (aka in gifs!)</h1>
+<p>Now that we have an overview of how Deploit brings your resources in one place, and we have found what resources we will need, time to go back to the <code>fastQsee</code> tutorial to generate the FastQC report.</p>
+<p><br></p>
+<p>All the resources that we will need can be summarized in the following table:</p>
+<p><br></p>
+<table>
+<colgroup>
+<col width="56%" />
+<col width="43%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"><strong>What</strong></th>
+<th align="left"><strong>Where</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">DATA</td>
+<td align="left"><a href="https://lifebit.page.link/1000fastq" target="_blank"><b>SRR062634.fastq.gz (1000genomes example file)</b></a></td>
+</tr>
+<tr class="even">
+<td align="left">CODE</td>
+<td align="left"><code>wget -O - https://lifebit.page.link/ftp_SRR062634_fastq_gz | gunzip -c &gt; SRR062634.fastq</code></td>
+</tr>
+<tr class="odd">
+<td align="left">OS/TOOLS</td>
+<td align="left"><a href="https://lifebit.page.link/alpine-bash_Docker" target="_blank"><b>frolvlad/alpine-bash</b></a> &amp; <a href="https://lifebit.page.link/alpine-bash_Docker" target="_blank"><b>lifebitai/fastqc</b></a> Docker containers</td>
+</tr>
+<tr class="even">
+<td align="left">RESOURCES</td>
+<td align="left">Lifebit Cloud <a href="https://lifebit.page.link/login_to_your_Deploit_account" target="_blank"><b>(provided with registration)</b></a></td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p>Let’s head over to the Deploit platform to generate the FastQC report step-by-step.</p>
+<p><br></p>
+<div id="step-0-create-a-project-for-your-analysis-tasks" class="section level2">
+<h2>STEP 0: Create a <code>Project</code> for your analysis tasks</h2>
+<p>For generating the <code>FastQC</code> report, we will deploy two jobs:</p>
+<p><br></p>
+<p><strong>1)</strong> One for retrieving the file<br> <strong>2)</strong> One for running the FastQC tool.</p>
+<p><br></p>
+<p>It is advised to create a <code>Project</code> to host the individual analyses (aka jobs) of a workflow. Think of the <code>Project</code> entity in the Deploit platform, as your parent directory for the project. There, you will have access not only to the <strong>data</strong> and <strong>code</strong>, but also to all the <strong><code>Jobs</code></strong> that have been run. You will have the ability to revisit, clone and deploy again the same jobs very easily.</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/JobMonitor_Reults_CloneJob.gif?raw=true"> <br><br></p>
+<p><a href="https://lifebit.page.link/login_to_your_Deploit_account" target="_blank"><b>Log in to your Deploit account</b></a> and access the <code>Projects</code> section from the light bulb icon 💡 on the left of your screen. Click on the green <code>New</code> button on the right, and provide a <code>Name</code> and <code>Description</code> for your new Project.</p>
+<p><br> We set up the <code>Project</code> for this example by filling in: <br></p>
+<ul>
+<li><code>Name</code>: <strong>“fastQsee”</strong></li>
+<li><code>Description</code>: <strong>“Quickly generate a FastQC report”</strong></li>
+</ul>
+<p><br></p>
+<p>You can find an overview of how these steps look on Deploit below: <br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/create_project.gif?raw=true"></p>
+<p><br><br></p>
+</div>
+<div id="step-1-port-the-frolvladalpine-bash-docker-container-to-deploit" class="section level2">
+<h2>STEP 1: Port the <a href="https://lifebit.page.link/alpine-bash_Docker" target="_blank"><b>frolvlad/alpine-bash</b></a> Docker container to Deploit</h2>
+<p>After you log in to Deploit, find the <strong><code>Pipelines</code></strong> section from the navigation bar on the left of your screen. We will create a new pipeline in the <code>Pipelines &gt; My Pipelines &amp; Tools</code> section.</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/pipelines_my_pipelines_and_tools.gif?raw=true"> <br><br></p>
+<p>This is how we will port the <a href="https://lifebit.page.link/alpine-bash_Docker" target="_blank"><b>frolvlad/alpine-bash</b></a> Docker container to Deploit, so that we can it use it for retrieving the <code>fastq.gz</code> file. Have the link to the Docker repository ready for copy+pasting <br> URL to Docker Hub: <a href="https://lifebit.page.link/alpine-bash_Docker" target="_blank"><b>hub.docker.com/r/frolvlad/alpine-bash</b></a> <br></p>
+<p>Have the link to the Docker repository ready for copy+pasting and then go ahead and click the green <code>New</code> button on the right.</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/dockerhub_url.gif?raw=true"> <br><br></p>
+<p>As shown above, you will be prompted to select <strong>“Where are you porting your pipeline from?”</strong>. Click on the Docker whale and then click on <code>Select</code> to proceed. Continue by filling in the required fields to port the container. You can have a look at how we set this up below as an example:</p>
+<p><br><br></p>
+<ul>
+<li><code>Docker hub URL</code>: <a href="https://hub.docker.com/r/frolvlad/alpine-bash" class="uri">https://hub.docker.com/r/frolvlad/alpine-bash</a></li>
+<li><code>Name</code> : <strong>“wgetGunzipper”</strong></li>
+<li><code>Default command</code>: <em>(leave this blank)</em></li>
+<li><code>Description</code>: <strong>&quot;A lightweight Linux distro for wget/gunzip</strong></li>
+</ul>
+<p><br><br></p>
+<p>The <code>Default command</code> is handy for saving time, but for now we will leave this blank so that we can use the command field as a terminal. You can see an overview of the process described above in the following gif:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/create_new_pipeline.gif?raw=true"> <br><br><br></p>
+</div>
+<div id="step-2-use-the-newly-created-pipeline-to-retrieve-and-uncompress-the-fastq.gz-file-on-deploit" class="section level2">
+<h2>STEP 2: Use the newly created pipeline to retrieve and uncompress the <code>fastq.gz</code> file on Deploit</h2>
+<p>Time to use our newly created pipeline, and utilize the Docker container that we ported. We will use the command field on Deploit as a terminal, and the Docker container as our operating system to download and decompress the fastq.gz file we selected for this example. We will then deploy the job and come back to find our FASTQ file in the <code>Data &gt; Job Results</code> section on the Deploit platform.</p>
+<p>We will run the following command as mentioned earlier:<br></p>
+<p><code>wget -O - https://lifebit.page.link/ftp_SRR062634_fastq_gz | gunzip -c &gt; SRR062634.fastq</code></p>
+<p>Have it ready for copy+pasting, and let’s go back to the Deploit platform. Access the newly created pipeline that utilizes the Alpine Linux docker container (we named ours <code>wgetGunzipper</code>) by clicking:<br></p>
+<p><code>Pipelines</code> &gt; <code>My Pipelines &amp; Tools</code> &gt; <code>wgetGunzipper</code> <br></p>
+<p>Paste the command from above in the <code>Executable</code> field. Take a look at how this will look on the Deploit platform below:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/wget_gunzipper_command.gif?raw=true"> <br><br></p>
+<p>You can see an overview of the final command in the bottom of the screen:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/final_command.PNG?raw=true"> <br><br></p>
+<p>Now we are ready to deploy the first of the <strong>two jobs</strong> for retrieving the FastQC report.</p>
+<p>Click on <code>Next</code> on the top right of your screen. You will be redirected to the page where you will: <br><br></p>
+<ol style="list-style-type: decimal">
+<li>Select <code>Project</code>, in which your job belongs to (we selected <code>fastQsee</code>)<br></li>
+<li>Select instance for deploying your job</li>
+</ol>
+<p><br></p>
+<p>When you select both, you are ready to submit your job. Go ahead and click <code>Run job</code>. You will be redirected to the <code>Jobs</code> page. Your job will be scheduled, initialized and be completed shortly. Take a look below to check how these steps should look in the Deploit platform.</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/select_project_select_instance_schedule_job.gif?raw=true"> <br><br></p>
+<p>After job completion, you can access the decompressed FASTQ file in the <code>Data &gt; Job Results</code> section. We expect to find our FASTQ file in the <code>fastQsee</code> <code>Project</code> folder, with a filename as we defined it when retrieving it <code>SRR062634.fastq</code>.<br></p>
+<p><strong>Reminder:</strong> This is the command we submitted to <strong>download</strong>, <strong>decompress</strong> and <strong>rename</strong> the <code>fastq.gz</code> file:<br></p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/final_command.PNG?raw=true"> <br><br><br></p>
+</div>
+<div id="step-3-use-the-uncompressed-fastq-file-as-input-to-lifebitaifastqc" class="section level2">
+<h2>STEP 3: Use the uncompressed FASTQ file as input to <code>lifebitai/fastqc</code></h2>
+<p>Our input file for the next and last step, the uncompressed FASTQ file is now available on the Deploit platform in the <code>Data &gt; Job Results</code> section. We will use this file as input for the <code>lifebitai/fastqc</code> pipeline, which is essentially a dockerized version of the FastQC tool and its dependencies. In the <code>Pipelines &gt; PUBLIC PIPELINES &amp; TOOLS</code> section, start typing <code>&quot;fastqc&quot;</code> in the search bar to easily find the <code>lifebitai/fastqc</code> pipeline.</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/query_pips_fastqc.gif?raw=true" > <br><br><br></p>
+<p>Time to set up the pipeline. Let’s: <br></p>
+<ol style="list-style-type: decimal">
+<li>define input data <br></li>
+<li>select <code>Project</code> that the pipeline will be associated with <br></li>
+<li>select instance (cloud resources)</li>
+</ol>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/select_project_select_instance_schedule_job.gif?raw=true" > <br><br></p>
+<p>As shown above we have selected as input data, the 1000geomes FASTQ file we fetched from the EMBL-EBI FTP server in the previous step. <code>None</code> other parameteres are required to run the <code>fastqc</code> pipeline. We then selected an instance (anything larger than 1 CPU would work).</p>
+<p><br><br><br></p>
+<div id="step-3---quick-tip-easily-run-available-pipelines-on-deploit" class="section level3">
+<h3>STEP 3 - Quick tip: Easily run available pipelines on Deploit</h3>
+<p>All curated pipelines included in Deploit’s library, in the <code>Pipelines &gt; PUBLIC PIPELINES &amp; TOOLS</code> section, come with example parameters and data. Click <br> <code>Try with example data &amp; parameters</code> to: <br> <br></p>
+<div id="figure-out-the-required-flags-and-arguments-to-run-the-pipeline" class="section level4">
+<h4>1. Figure out the required flags and arguments to run the pipeline <br></h4>
+<p>from the Deploit fields:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/check_parameters.gif?raw=true"> <br><br></p>
+<p>or from the final command field:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/final_command_field_example_params.PNG?raw=true"> <br><br></p>
+<p>This way you can see how the command should look like when you customize the pipeline with your own parameters and input data. For example, as shown above we can see that the <code>lifebitai/fastqc</code> pipeline can be run just by typing:</p>
+<p><br><br></p>
+<p><code>fastq name_of_my_fastq_file.qc</code></p>
+<p><br><br></p>
+<p>Notice the <code>.fq</code> file format required and <code>None</code> other parameters.</p>
+<p><br><br></p>
+</div>
+<div id="take-a-look-at-output-files-of-new-pipelines" class="section level4">
+<h4>2. Take a look at output files of new pipelines</h4>
+<p><br><br></p>
+<p>You can run with example parameters &amp; data just to check the output files that the pipeline generates, and explore new pipelines and tools you haven’t used before for your own omics data. You might discover another way you can interrogate your omics data and generate more results to inspect.</p>
+<p><br><br><br></p>
+</div>
+</div>
+</div>
+<div id="step-4-job-completed-time-to-inspect-the-fastqc-html-report" class="section level2">
+<h2>STEP 4: Job completed! Time to inspect the FastQC html report</h2>
+<p>Once the job has been completed, you can access your results from the <code>Job Page</code>, as shown below:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/access_results.gif?raw=true"> <br><br></p>
+<p>The <code>Job Page</code> serves like a summary report that includes information about:</p>
+<p><br><br></p>
+<ul>
+<li><code>Pipeline and configuration</code>: Name of Pipeline and configuration selected for this job</li>
+<li><code>Job status</code>: Job progress (% complete) or if it has failed</li>
+<li><code>Resource Monitor</code>: <strong>CPU</strong> usage, <strong>RAM</strong> requirements</li>
+<li><code>Table overview</code>: Runtime, number of processes, total cost</li>
+</ul>
+<p><br><br></p>
+<p>It also works as a portal to access all the generated output files in the <code>Results</code> section. Every job is assigned a unique <code>Job ID</code>, so that you can reference back to them or to retrieve programmatically information about the job using your private key through Deploit’s restful API.</p>
+<p><br><br><br></p>
+</div>
+<div id="step-5-share-reproduce-re-use" class="section level2">
+<h2>STEP 5: Share, reproduce, re-use</h2>
+<div id="share" class="section level3">
+<h3>Share</h3>
+<p>You can also share your <code>Job page</code> and hence analysis results by creating a public sharable link from the <code>Job page</code> as shown below:<br></p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/make_page_public.gif?raw=true"> <br><br></p>
+<p>Anyone that has your public link can access your <code>Job page</code>. Want to stop sharing? No worries! Just make the page private again and the url will lead to a cute tardigrade 404 page. <br> Take a look below:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/unmake_page_public.gif?raw=true" > <br><br><br></p>
+</div>
+<div id="reproduce" class="section level3">
+<h3>Reproduce:</h3>
+<p><br><br></p>
+<div id="immutable-docker-digests" class="section level4">
+<h4>Immutable Docker digests</h4>
+<p>In the <code>Job page</code> you can easily access the Docker image digest. <br></p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/image_digest.gif?raw=true"> <br><br></p>
+<p>Digests are unique immutable Docker container identifiers and we choose to use those to ensure that the image we use when cloning a job is always the same. Tags are mutable and they don’t guarantee reproducibility. You can read more about it in the official Docker Docs page <a href="https://lifebit.page.link/DockerDocs" target="_blank"><b>here</b></a>.</p>
+<p><br><br> <a href="https://lifebit.page.link/DockerDocs"  target="_blank"> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/docker_digests.png?raw=true"> </a> <br><br><br></p>
+</div>
+<div id="github-commits" class="section level4">
+<h4>GitHub commits</h4>
+<p><br><br></p>
+<p>If you port a pipeline from GitHub, you also have access to the GitHub commit so that you know exactly what revision you have used for running you’re pipeline. Straight from the GitHub glossary</p>
+<p>You can access it from the <code>Job Page &gt; Pipeline and configuration&gt; Revision</code> as shown below:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/GitHubCommit.gif?raw=true"> <br><br><br></p>
+</div>
+</div>
+<div id="re-use" class="section level3">
+<h3>Re-use</h3>
+<p>If you have already run a <code>Job</code> on the Deploit platform, you can easily use the <code>clone</code> feature to revisit your pipeline. By clicking on <strong><code>clone</code></strong> you will get a different <code>Job ID</code> but an automatic identical configuration set-up . You will be redirected in the job submission page.<br></p>
+<p>Take a look below:</p>
+<p><br><br> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/clone_job.gif?raw=true"> <br><br></p>
+<p>After cloning, you can easily modify the pipeline configuration as little (eg. change input file and keep all other parameters the same) or <strong>as much</strong> (eg. modify everything by changing the parameter values) as you like. This helps you quickly modify and re-use pipelines.</p>
+<p><br><br><br></p>
+</div>
+</div>
+<div id="time-for-you-to-deploit" class="section level2">
+<h2>Time for you to Deploit!</h2>
+<p><br><br> Now you are ready to give Deploit a try yourself! Use this tutorial as a guide to deploy your own analysis on the Deploit platfom. You can also download this tutorial html file (and the Rmarkdown that created it!) from the Deploit Platform using the sharable page url fro Deploit. Use the sharable url below, go to results and download the <code>fastQsee_tutorial.Rmd</code> or preview the <code>fastQsee_tutorial.html</code>:</p>
+<p><br><br></p>
+<p style="text-align:center;">
+<a href="https://lifebit.page.link/fastQsee_Job_Page" target="_blank"><b>The fastQsee Project Folder on Deploit</b></a>
+</p>
+<p><br><br> <a href="https://lifebit.page.link/fastQsee_Job_Page"> <img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/download_fastqsee_from_deploit.gif?raw=true"> </a> <br><br><br></p>
+</div>
+</div>
+<div id="acknowledgements" class="section level1">
+<h1>Acknowledgements</h1>
+<p>Many thanks to <a href="https://lifebit.page.link/Phil_GitHub" target="_blank"><b>Phil Palmer</b></a> and <a href="https://lifebit.page.link/diogo_GitHub" target="_blank"><b>Diogo Silva</b></a> for reproducibility and Docker feedback. <br><br><br><br><br><br></p>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiZmFzdFFzZWU6IEEgdHV0b3JpYWwgb24gaG93IHRvIHVzZSBEb2NrZXIgY29udGFpbmVycyBvbiB0aGUgW0RlcGxvaXQgcGxhdGZvcm1dKGh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvZGVwbG9pdCkgdG8gcXVpY2tseSBnZW5lcmF0ZSBhIHBsb3QtZnVsIEZhc3RRQyByZXBvcnQiCmRhdGU6ICIiCiNhdXRob3I6CiMtIG5hbWU6ICJDaHJpc3RpbmEgQ2hhdHppcGFudHNpb3UiCiMgIGVtYWlsOiAiY2hhdHppcGFudHNpb3VAZ21haWwuY29tIgpvdXRwdXQ6IAogIGh0bWxfZG9jdW1lbnQ6CiAgICB0b2M6IHRydWUKICAgIHRvY19mbG9hdDogdHJ1ZSAgCiAgICBjb2RlX2ZvbGRpbmc6IGhpZGUKICAgIGNvZGVfZG93bmxvYWQ6IHRydWUKICAgIHRoZW1lOiBjZXJ1bGVhbiAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyBtYW55IG9wdGlvbnMgZm9yIHRoZW1lLCB0aGlzIG9uZSBpcyBteSBmYXZvcml0ZS4KICAgIGhpZ2hsaWdodDoga2F0ZSAgICAgICAgICAjIHNwZWNpZmllcyB0aGUgc3ludGF4IGhpZ2hsaWdodGluZyBzdHlsZQotLS0KPGJyPjxicj4KCiFbXShodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvZG9ja2VyX3hfZGVwbG9pdF9naWZfYmxvZ3Bvc3RfaGVhZGVyLmdpZj9yYXc9dHJ1ZSkKCjxicj48YnI+CgojIFRMO0RSCgo8YnI+CgojIyBXaHkgY2FsbCBpdCAnZmFzdFFzZWUnIHRob3VnaCDwn6SUPwoKV2VsbCwgYmVjYXVzZSB5b3Ugd2lsbCBnZXQgdG8gc2VlIPCfkYAgYSBGYXN0UUMgcmVwb3J0IG9mIHlvdXIgRkFTVFEgZmlsZSB2ZXJ5IGZhc3QhIEluc3RhbGxhdGlvbi1sZXNzIGFuZCBxdWljaywgbWFkZSBwb3NzaWJsZSBieSBhIGxpdHRsZSBjb250YWluZXIgbWFnaWMgZnJvbSBEb2NrZXIgYW5kIHBvd2VyZWQgYnkgRGVwbG9pdC4KCjxicj4KCgojIyBXaGF0IHdpbGwgSSBsZWFybj8KClRoaXMgdHV0b3JpYWwgaXMgYSBwcmltZXIsIG9uIGhvdyB0byBnbyBtb2R1bGFyIGFuZCB1c2UgRG9ja2VyIGByIGVtbzo6amkoIndoYWxlIilgIGNvbnRhaW5lcnMgZm9yIHlvdXIgYmlvaW5mb3JtYXRpY3MgYW5hbHlzaXMgdGFza3MuIE1vcmUgc3BlY2lmaWNhbGx5LCB3ZSB3aWxsIGxlYXJuIGhvdyB0byB1c2UgdGhlIDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvZGVwbG9pdCIgIHRhcmdldD0iX2JsYW5rIj48Yj5EZXBsb2l0IHBsYXRmb3JtPC9iPjwvYT4gdG8gYXNzZW1ibGUgYW5kIGRlcGxveSBvbiBjbG91ZCBhIHJlcHJvZHVjaWJsZSBhbmQgc2hhcmFibGUgYmlvaW5mb3JtYXRpY3Mgd29ya2Zsb3cuIDxicj4KCldlIHdpbGwgYXNzZW1ibGUgdGhlIGZvbGxvd2luZyByZXNvdXJjZXMgaW50byBhIHdvcmtmbG93IG9uIHRoZSBfX0RlcGxvaXRfXyBwbGF0Zm9ybTogPGJyPgoKKiBgciBlbW86OmppKCJ3aGFsZSIpYCBhIF9fRG9ja2VyIGNvbnRhaW5lcl9fLCBmcm9tIERvY2tlckh1YiAKKiBgciBlbW86OmppKCJyb2NrZXQiKWAgYSBfX2N1cmF0ZWQgcGlwZWxpbmVfXywgYXZhaWxhYmxlIG9uIHRoZSBfX0RlcGxvaXRfXyBwbGF0Zm9ybQoqIGByIGVtbzo6amkoImRvY3VtZW50IilgIGEgMTAwMGdlbm9tZXMgcHJvamVjdCBfX2BgYGZhc3RxLmd6YGBgX18gZmlsZSwgZmV0Y2hlZCBmcm9tIGFuIEVNQkwtRUJJIEZUUCBzaXRlCgo8YnI+CgojIyBMYXN0IHRoaW5ncyBmaXJzdDogV2hhdCByZXN1bHRzIHdpbGwgSSBnZXQgZnJvbSB0aGUgRmFzdFFDIHRvb2wgb24gRGVwbG9pdD8KCkFmdGVyIGNvbXBsZXRpbmcgdGhpcyBtaW5pIHdvcmtmbG93IG9uIHRoZSBEZXBsb2l0IHBsYXRmb3JtLCB5b3Ugd2lsbCBoYXZlOjxicj48YnI+IApfXzEpIGEgcGxvdC1mdWxsIEZhc3RRQyBodG1sIHJlcG9ydF9fLCA8YnI+CndpdGgga2V5IG1ldHJpY3MgdG8gYXNzZXNzIHRoZSBxdWFsaXR5IG9mIHlvdXIgRkFTVFEgZmlsZSA8YnI+CgpfXzIpIHNoYXJhYmxlIGxpbmtzIHRvIHlvdXIgYGBgSm9iIFBhZ2VgYGBfXyBzICw8YnI+IAp3aXRoIGludGVyYWN0aXZlIHBsb3RzIGFuZCBpbmZvcm1hdGlvbiBhYm91dCB0aGUgcmVzb3VyY2VzIGFuZCB0aGUgcmVzdWx0cy4KCllvdSBjYW4gYWNjZXNzIHRoZSAgYGBgSm9icyBQYWdlc2BgYCBmcm9tIHRoZSBzaGFyYWJsZSB1cmxzIHdlIGNyZWF0ZWQgZm9yIHRoaXMgZXhhbXBsZTogPGJyPgoKKiBmb3IgcmV0cmlldmluZyB0aGUgMTAwMGdlbm9tZXMgZmFzdHEuZ3ogZmlsZSA6IGByIGVtbzo6amkoJ2xpbmsnKWAgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay93Z2V0R3VuemlwcGVyX19zaGFyYWJsZV9wYWdlIiAgdGFyZ2V0PSJfYmxhbmsiPjxjb2RlPndnZXRHdW56aXBwZXI8L2NvZGU+PC9iPjwvYT4gPGJyPgoqIGZvciBnZW5lcmF0aW5nIHRoZSBGYXN0UUMgaHRtbCByZXBvcnQ6IGByIGVtbzo6amkoJ2xpbmsnKWAgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9Kb2JfUGFnZV9zaGFyYWJsZV9mYXN0UXNlZSIgIHRhcmdldD0iX2JsYW5rIj48Y29kZT5mYXN0UXNlZTwvY29kZT48L2I+PC9hPjxicj4KCmFuZCB0YWtlIGEgbG9vayBhdCB3aGF0IGEgYGBgSm9iIFBhZ2VgYGAgIGxvb2tzIGxpa2UgYmVsb3c6Cgo8YnI+PGJyPgo8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2xpZmViaXQtZGVwbG9pdCIgdGFyZ2V0PSJfYmxhbmsiPjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvb3ZlcnZpZXdfb2Zfam9iX3BhZ2UuZ2lmP3Jhdz10cnVlIiA+PC9hPgo8YnI+PGJyPgoKQWxzbywgeW91IHdpbGwgaGF2ZSB0aGUgc2hhcmFibGUgbGluayBmb3IgdGhlIERlcGxvaXQgcGFnZSBqb2IsIHdoZXJlIHlvdSBjYW4gZmluZCB0aGUgaHRtbCBmaWxlIG9mIHRoaXMgdHV0b3JpYWwgKGFuZCBhbHNvIHRoZSBybWFya2Rvd24gZmlsZSB0aGF0IGNyZWF0ZWQgaXQhKS4gQ2hlY2sgYmVsb3c6Cgo8YnI+PGJyPgo8cD48aWZyYW1lIHNyYz0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9mYXN0UXNlZV9Kb2JfUGFnZSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iNjAwIj48L2lmcmFtZT48L3A+Cjxicj48YnI+Cgo8YnI+PGJyPgo8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2Zhc3RRc2VlX0pvYl9QYWdlIiB0YXJnZXQ9Il9ibGFuayI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvZG93bmxvYWRfZmFzdHFzZWVfZnJvbV9kZXBsb2l0LmdpZj9yYXc9dHJ1ZSI+CjwvYT4KPGJyPjxicj4KCllvdSBjYW4gdGhlbiBkb3dubG9hZCB0aGVtLCBhbmQgeW91IHdpbGwgaGF2ZSBhIHR1dG9yaWFsIHRvIGd1aWRlIHlvdSBvbiBhc3NlbWJsaW5nIGFuZCBydW5uaW5nIHJlcHJvZHVjaWJsZSBiaW9pbmZvcm1hdGljcyB3b3JrZmxvd3Mgb24gdGhlIERlcGxvaXQgcGxhdGZvbS4gTm93LCBsZXQncyBtb3ZlIG9uIHdpdGggdGhlIHN0ZXAgYnkgc3RlcCBndWlkZSBvbiBob3cgdG8gcnVuIHRoZSBGYXRzUUMgb24gRGVwbG9pdC4gCgo8YnI+CgojIE92ZXJ2aWV3Cgo8YnI+CgojIyBXaHkgZG8gSSBuZWVkIGEgRmFzdFFDIHJlcG9ydD8gCgpUaGUgYW5hbHlzaXMgam91cm5leSBvZiBOR1MgZ2VuZXJhdGVkIEZBU1RRIGZpbGVzIHNob3VsZCBhbHdheXMgc3RhcnQsIGFzIHdpdGggYW55IG90aGVyIGRhdGEgYW5hbHlzaXMgdGFzaywgd2l0aCBhIHJvYnVzdCBfX0VfXyB4cGxvcmF0b3J5IF9fRF9fIGF0YSBfX0FfXyBuYWx5c2lzIChfX0VEQV9fKSBib3V0LiAKCjxicj48YnI+CjxwIHN0eWxlPSJ0ZXh0LWFsaWduOmNlbnRlcjsiPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL2tlZXAtY2FsbS1nZW5lcmF0b3ItdHdpdHRlci1jb3Zlci1wZXJmb3JtLWVkYS5qcGc/cmF3PXRydWUiIHN0eWxlPSJ3aWR0aDogOTAlOyBoZWlnaHQ6IDkwJSI+CjwvcD4KPGJyPjxicj4KClRoZSA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL0Zhc3RRQ19PZmZpY2lhbF9QYWdlIiAgdGFyZ2V0PSJfYmxhbmsiPkZhc3RRQyB0b29sPC9iPjwvYT4gKEFuZHJld3MgUy4gZXQgYWwsIDIwMTApLCBmYWNpbGl0YXRlcyB0aGlzIHRhc2sgYnkgcHJvdmlkaW5nIGEgcGxvdC1mdWwgaHRtbCByZXBvcnQsIHdpdGgga2V5IG1ldHJpY3MgZm9yIHJlYWQgcXVhbGl0eS4gCgo8cCBzdHlsZT0idGV4dC1hbGlnbjpjZW50ZXI7Ij4KPGI+Cjxmb250IHNpemU9IjMiIGNvbG9yPSJibGFjayI+RmFzdFFDIHF1YWxpdHkgYXNzZXNtZW50IHBsb3RzPC9mb250Pgo8L2I+Cgo8YnI+PGJyPgoKYGBge3J9Cmxpc3Rfb2ZfaW1nID0gYygiaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL3Blcl9iYXNlX3NlcXVlbmNlX3F1YWxpdHkucG5nP3Jhdz10cnVlIiwKICAgICAgICAgICAgICAgICJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvcGVyX3NlcXVlbmNlX2NvbnRlbnQucG5nP3Jhdz10cnVlIiwKICAgICAgICAgICAgICAgICJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvcGVyX3NlcXVlbmNlX3F1YWxpdHlfc2NvcmVzLnBuZz9yYXc9dHJ1ZSIsCiAgICAgICAgICAgICAgICAiaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL3Blcl90aWxlX3NlcXVlbmNlX3F1YWxpdHkucG5nP3Jhdz10cnVlIgogICAgICAgICAgICAgICAgKQpzbGlja1I6OnNsaWNrUihvYmogICAgID0gbGlzdF9vZl9pbWcsCiAgICAgICAgICAgICAgIHBhZGRpbmcgPSAiMTAiICwKICAgICAgICAgICAgICAgd2lkdGggICA9ICc3MCUnLAogICAgICAgICAgICAgICBoZWlnaHQgID0gMzAwCikKYGBgCgo8YnI+PGJyPgogCklmIG5vdCBmYW1pbGlhciB3aXRoIGhvdyB0byBpbnRlcnByZXQgdGhlIHBsb3RzLCB5b3UgY2FuIHN0YXJ0IGJ5IHRha2luZyBhIGxvb2sgYXQgdGhlIDxmb250IHNpemU9IjIiIGNvbG9yPSJncmVlbiI+PGI+Z29vZDwvYj48L2ZvbnQ+IGFuZCA8Zm9udCBzaXplPSIyIiBjb2xvcj0icmVkIj48Yj5iYWQ8L2I+PC9mb250PiBxdWFsaXR5IHNlcXVlbmNpbmcgZGF0YSBleGFtcGxlcyB0aGF0IGFyZSBhdmFpbGFibGUgaW4gdGhlIDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvRmFzdFFDX09mZmljaWFsX1BhZ2UiIHRhcmdldD0iX2JsYW5rIj48Yj5GYXN0UUMgdG9vbCBvZmZpY2lhbCB3ZWJwYWdlPC9iPjwvYT4uCgpUaGVyZSBpcyBhbHNvIGEgcmVhbGx5IGdyZWF0IHByZXNlbnRhdGlvbiBvbiBfIlJOQS1zZXEgcXVhbGl0eSBjb250cm9sIGFuZCBwcmUtcHJvY2Vzc2luZyJfICBieSAgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9taWthZWxodXNzdHdpdHRlciIgdGFyZ2V0PSJfYmxhbmsiPjxiPk1pa2FlbCBIdXNzPC9iPjwvYT4geW91IGNhbiBjaGVjayBvdXQgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9taWthZWxodXNzUk5Bc2VxX3F1YWxpdHkiIHRhcmdldD0iX2JsYW5rIj48Yj5oZXJlPC9iPjwvYT4uIDxicj4KCjxicj48YnI+CjxwIHN0eWxlPSJ0ZXh0LWFsaWduOmNlbnRlcjsiPgo8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL21pa2FlbGh1c3NSTkFzZXFfcXVhbGl0eSIgIHRhcmdldD0iX2JsYW5rIj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9STkFzZXFfcXVhbGl0eV9wcmVzZW50YXRpb24uUE5HP3Jhdz10cnVlIiBzdHlsZT0id2lkdGg6IDc1JTsgaGVpZ2h0OiA3NSUiPgo8L2E+CjwvcD4KPGJyPjxicj4KCgojIyBXaGF0IHJlc291cmNlcyBkbyBJIG5lZWQgdG8gZ2VuZXJhdGUgYSBfX0Zhc3RRQyByZXBvcnRfXyBvbiB0aGUgRGVwbG9pdCBwbGF0Zm9ybT8gKHNwb2lsZXIgaGludDogbGlua3MhKQpJbiB0aGlzIHR1dG9yaWFsLCB3ZSB3aWxsIGJyaW5nIGFsbCB0aGUgcmVxdWlyZWQgcmVzb3VyY2VzIHRvIGdlbmVyYXRlIGEgRmFzdFFDIHJlcG9ydCBvbiB0aGUgX19EZXBsb2l0X18gcGxhdGZvcm0uIEZvciB0aGUgbW9zdCBwYXJ0IHRoZSByZXNvdXJjZXMgd2Ugd2lsbCBuZWVkIGNhbiBiZSBwcm92aWRlZCBpbiB0aGUgZm9ybSBvZiBfX2xpbmtzX18sIHRoYXQgcG9pbnQgdG8gdGhlIGZvbGxvd2luZyBmb3VyIGZ1bmRhbWVudGFsIGluZ3JlZGllbnRzIG9mIGFueSBkYXRhIGFuYWx5c2lzIHBpcGVsaW5lOgoKCjxicj48YnI+CgojIyMgaSkgREFUQSA8YnI+ClRoZSBtYWluIGluZ3JlZGllbnQuIEZvciB0aGlzIGV4YW1wbGUgd2Ugd2lsbCB1c2UgYSBgYGBGQVNUUS5nemBgYCBmaWxlIGZyb20gdGhlIDEwMDBnZW5vbWVzIHByb2plY3QuICBXZSBvbmx5IG5lZWQgdGhlIF9fdXJsX18gdGhhdCBwb2ludHMgdG8gdGhlIGZpbGUsIGhvc3RlZCBpbiB0aGUgYW4gRU1CTC1FQkkgRlRQIHNlcnZlci4gWW91IGNhbiBmaW5kIHRoZSBvbmUgd2Ugc2VsZWN0ZWQgaW4gdGhlIGZvbGxvd2luZyBsaW5rOjxicj4KPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay8xMDAwZmFzdHEiIHRhcmdldD0iX2JsYW5rIj48Yj48Y29kZT5mdHA6Ly9mdHAuMTAwMGdlbm9tZXMuZWJpLmFjLnVrL3ZvbDEvZnRwL3BoYXNlMy9kYXRhL0hHMDAwOTYvc2VxdWVuY2VfcmVhZC9TUlIwNjI2MzQuZmlsdC5mYXN0cS5nej48L2NvZGU+PC9iPjwvYT4KCjxicj4obGluayB0byBwYXJlbnQgcmVwbykKCjxicj4KCiMjIyBpaSkgQ09ERQpUaGUgaW5zdHJ1Y3Rpb25zLCB0aGUgcmVjaXBlIGZvciB0aGUgdHJhbnNmb3JtYXRpb25zIHRoYXQgd2lsbCBiZSBwZXJmb3JtZWQgb24gb3VyIHJhdyBkYXRhLiBUaGUgRmFzdFFDIHRvb2wgdGFrZXMgYXMgaW5wdXQgdW5jb21wcmVzc2VkIEZBU1RRIGZvcm1hdCBkYXRhLiBTbyB3ZSBuZWVkIGNvZGUgZm9yIF9fdHdvIG1haW4gdGFza3NfXyB0byBvYnRhaW4gdGhlIEZhc3RRQyByZXBvcnQuIAoKPGJyPgoKIyMjIyBUQVNLIDE6IF9fRG93bmxvYWRfXywgX191bmNvbXByZXNzX18gYW5kIF8ob3B0aW9uYWwgYnV0IGhhbmR5KV8gX19yZW5hbWVfXyB0aGUgZmFzdHEuZ3ogZmlsZSA8YnI+CldlIHdpbGwgdXNlIHRoZSBmb2xsb3dpbmcgYGBgPl8gYmFzaGBgYCBjb21tYW5kIHRvIGRvIGV4YWN0bHkgdGhhdDoKCiogYGBgd2dldGBgYDogZmV0Y2hlcyBmcm9tIEZUUCBzZXJ2ZXIgYW5kIGRvd25sb2FkCiogYGBgZ3VuemlwYGBgOiB1bmNvbXByZXNzZXMgLmd6IGZpbGUgCiogYGBgPmBgYDogcmVuYW1lcwoKYGBgCndnZXQgLU8gLSBodHRwczovL2xpZmViaXQucGFnZS5saW5rL2Z0cF9TUlIwNjI2MzRfZmFzdHFfZ3ogfCBndW56aXAgLWMgPiBTUlIwNjI2MzQuZmFzdHEgCmBgYApGb3IgYSBtb3JlIGRldGFpbGVkIGJyZWFrZG93biBvZiB0aGUgY29tbWFuZCBwb3dlcmVkIGJ5IFVidW50dSdzIG1hbnBhZ2UgcmVwb3NpdG9yeSwgeW91IGNhbiBjaGVjayA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL0V4cGxhaW5TaGVsbF9mYXN0UXNlZSIgdGFyZ2V0PSJfYmxhbmsiPjxiPkV4cGxhaW5TaGVsbC5jb208L2I+PC9hPi4gCjxicj4KPGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL0V4cGxhaW5TaGVsbC5naWY/cmF3PXRydWUiPgo8YnI+Cjxicj4KRmVlbCBmcmVlIHRvIHN3YXAgdGhlIHNob3J0ZW5lZCBgYGBodHRwczovL2xpZmViaXQucGFnZS5saW5rL2Z0cF9TUlIwNjI2MzRfZmFzdHFfZ3pgYGAgd2l0aCB0aGUgb3JpZ2luYWwgYGBgZnRwYGBgIGxpbmsgcHJvdmlkZWQgYWJvdmUuIApUaGUgb3V0cHV0IG9mIHRoaXMgY29tbWFuZCB3aWxsIGJlIHRoZSB1bmNvbXByZXNzZWQgRkFTVFEgZmlsZSBuYW1lZCBgYGBTUlIwNjI2MzQuZmFzdHFgYGAgLgoKPGJyPgoKIyMjIyBUQVNLIDI6IFJ1biB0aGUgRmFzdFFDIHRvb2wgd2l0aCB0aGUgdW5jb21wcmVzc2VkIGZpbGUgYXMgaW5wdXQgdG8gZ2VuZXJhdGUgdGhlIEZBU1RRIHJlcG9ydC4KCkZvciB0aGlzIHdlIHdpbGwgdXNlIG9uZSBvZiB0aGUgcGlwZWxpbmVzIGFscmVhZHkgYXZhaWxhYmxlIGluIHRoZSBfX2BgYFBJUEVMSU5FUyA+IFBVQkxJQyBQSVBFTElORVMgJiBUT09MU2BgYF9fIHNlY3Rpb24gb24gdGhlIERlcGxvaXQgcGxhdGZvcm0uIFRoZSBvbmx5IGlucHV0IHJlcXVpcmVkIGZvciB0aGUgcmVwb3J0IGlzIHRoZSB1bmNvbXByZXNzZWQgRkFTVFEgZmlsZSB3ZSBhY3F1aXJlZCBmcm9tIHRoZSBwcmV2aW91cyBzdGVwLiAKCjxicj4KCgojIyMgaWlpKSBPUyAmIFRPT0xTIApUaGUgZW52aXJvbm1lbnQgYW5kIHRvb2xzIHRoYXQgd2lsbCBmYWNpbGl0YXRlIHRoZSB0cmFuc2Zvcm1hdGlvbiBvZiBvdXIgZGF0YS48YnI+CgpXZSB3aWxsIG9idmlvdXNseSB1c2UgX19Eb2NrZXJfXyAsIHRoZSBfX0Zhc3RRQ19fIHRvb2wgYW5kIGl0cyBkZXBlbmRlbmNpZXMgKGVnLiBhIHN1aXRhYmxlIF9fSl9fIGF2YSBfX1JfXyB1bnRpbWUgX19FX18gbnZpcm9ubWVudCkuIEhvd2V2ZXIsIF9fbm8gaW5zdGFsbGF0aW9uIGlzIHJlcXVpcmVkX18gb24geW91ciBtYWNoaW5lIGJlY2F1c2UgZXZlcnl0aGluZyBjYW4gYmUgYXZhaWxhYmxlIG9uIHRoZSA8Yj48YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2RlcGxvaXQiIHRhcmdldD0iX2JsYW5rIj5EZXBsb2l0IHBsYXRmb3JtPC9iPjwvYT4sIGluc3RhbGxhdGlvbiBmcmVlLiBEb2NrZXIgY29udGFpbmVycyB3aWxsIHNlcnZlIGFzIG91ciBzb2Z0d2FyZSBtaWNyb2Vudmlyb25tZW50cyB0aGF0IHdpbGwgaG9zdCBlYWNoIHRhc2sgb2YgdGhlIHdvcmtmbG93LgoKPGJyPgoKIyMjIyBUQVNLIDE6IFBvcnQgRG9ja2VyIGNvbnRhaW5lciBmcm9tIERvY2tlciBIdWIgdG8gRGVwbG9pdApGb3IgdGhlIGZpcnN0IHRhc2sgbWVudGlvbmVkIGFib3ZlLCB0byByZXRyaWV2ZSBhbmQgdW5jb21wcmVzcyB0aGUgZmFzdHEuZ3ogZmlsZSwgd2Ugd2lsbCBwb3J0IGEgRG9ja2VyIGNvbnRhaW5lciB3aXRoIGEgbGlnaHR3ZWlnaHQgTGludXggZGlzdHJpYnV0aW9uICh3ZSBvbmx5IG5lZWQgYGBgPl9iYXNoYGBgIGZvciBgd2dldGAgYW5kIGBndW56aXBgKSBmcm9tIERvY2tlciBIdWIgYnkgcHJvdmlkaW5nIHRoZSBsaW5rIHRvIHRoZSByZXNwZWN0aXZlIHJlcG9zaXRvcnkuIFlvdSBjYW4gZmluZCB0aGUgZG9ja2VyIGNvbnRhaW5lciB3ZSBoYXZlIGNob3NlbiAod2l0aCBgQWxwaW5lYCBMaW51eCkgaW4gdGhlIGZvbGxvd2luZyBsaW5rOjxicj4KCjxhIGhyZWY9Imh0dHBzOi8vaHViLmRvY2tlci5jb20vci9iYXNoZWxsL2FscGluZS1iYXNoIiB0YXJnZXQ9Il9ibGFuayI+PGI+aHR0cHM6Ly9odWIuZG9ja2VyLmNvbS9yL2Zyb2x2bGFkL2FscGluZS1iYXNoPC9iPjwvYT4uIDxicj4KCldlIHdpbGwgdXNlIHRoaXMgRG9ja2VyIGNvbnRhaW5lciBmb3Igb3VyIGNvbWJvIGBgYHdnZXQgfCBndW56aXAgPmBgYCBjb21tYW5kIGFuZCBkZXBsb3kgdGhlIGpvYiBvdmVyIGNsb3VkIGZyb20gdGhlIERlcGxvaXQgcGxhdGZvcm0uIFRoZSB1bmNvbXByZXNzZWQgZmlsZSB3aWxsIGJlIGF2YWlsYWJsZSBpbiB0aGUgYGBgREFUQSA+IEpPQiBSRVNVTFRTYGBgIHNlY3Rpb24gaW4gdGhlIHBsYXRmb3JtIGFuZCBhdmFpbGFibGUgdG8gYmUgdXNlZCBhcyBpbnB1dCBpbiBvdGhlciBwaXBlbGluZXMuCgo8YnI+CgojIyMjIFRBU0sgMjogVXNlIHRoZSBfX0Zhc3RRQ19fIHRvb2wsIGFscmVhZHkgYXZhaWxhYmxlIGluIHRoZSBsaWJyYXJ5IG9mIGN1cmF0ZWQgcGlwZWxpbmVzIG9uIERlcGxvaXQKCkFsbCB3ZSBuZWVkIGZvciB0aGlzIGlzIHRvIHNlbGVjdCB0aGUgYGZhc3RxY2AgcGlwZWxpbmUgZnJvbSB0aGUgbGlicmFyeSBvZiBjdXJhdGVkIHBpcGVsaW5lcyBhdmFpbGFibGUgb24gdGhlIERlcGxvaXQgcGxhdGZvcm0uIEFzIGlucHV0LCB3ZSB3aWxsIHVzZSB0aGUgb3V0cHV0IGZpbGUgZnJvbSB0aGUgcHJldmlvdXMgc3RlcCwgdGhlIHVuY29tcHJlc3NlZCBGQVNUUSBmaWxlLiBUaGUgRkFTVFEgZmlsZSBjYW4gYmUgYWNjZXNzZWQgaW4gdGhlIGBgYERBVEEgPiBKT0IgUkVTVUxUU2BgYCBzZWN0aW9uIGluIHRoZSBwbGF0Zm9ybS4KCjxicj4KCiMjIyBpdikgUkVTT1VSQ0VTCgpQb3dlciEgVG8gc3BpbiBhbGwgdGhlc2UgdXAgYW5kIGdlbmVyYXRlIG91ciByZXN1bHRzLiAKCkRlcGxvaXQgYnJpbmdzIGFsbCBfX2ZvdXJfXyByZXF1aXJlZCByZXNvdXJjZXMgaW4gb25lIHBsYWNlLiBEZXBsb2l0IG9yY2hlc3RyYXRlcyB0aGUgZGVwbG95bWVudCBvZiB5b3VyIGpvYnMgb3ZlciBjbG91ZC4gSWYgeW91IGRvbid0IGhhdmUgYSBjbG91ZCBhY2NvdW50IHlldCwgeW91IGNhbiBzdGlsbCB0cnkgdGhlIHBsYXRmb3JtLiBVcG9uIHJlZ2lzdHJhdGlvbiwgd2UgcHJvdmlkZSB5b3Ugd2l0aCBhIExpZmViaXQgY2xvdWQgYWNjb3VudCB3aXRoIHByZWxvYWRlZCBjcmVkaXRzLCBzbyB0aGF0IHlvdSBydW4geW91ciBmaXJzdCBhbmFseXNlcyA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2xpZmViaXQtZGVwbG9pdCIgdGFyZ2V0PSJfYmxhbmsiPjxpbWcgc3JjPSJodHRwczovL2ltZy5zaGllbGRzLmlvL2JhZGdlL3Bvd2VyZWQlMjBieS1EZXBsb2l0LWJsdWUuc3ZnIiA+PC9hPi4gSWYgeW91IHdhbnQgdG8gaGF2ZSBhY2Nlc3MgdG8geW91ciBvd24gcmVzb3VyY2VzIChkYXRhLCBjcmVkaXRzKSB5b3UgY2FuIGxpbmsgeW91ciBvd24gY2xvdWQgYWNjb3VudC4gCgo8YnI+CgojIyBXaHkgbm90IGluc3RhbGwgZXZlcnl0aGluZyBJIG5lZWQgYW5kIHJ1biBGYXN0UUMgb24gbXkgbWFjaGluZSBpbnN0ZWFkPyAKCkluIHByaW5jaXBsZSwgeW91IGNvdWxkIGFjdHVhbGx5IGVhc2lseSBpbnN0YWxsIHRoZSBkZXBlbmRlbmNpZXMgZm9yIHJ1bm5pbmcgRmFzdFFDIG9uIHlvdXIgb3duIG1hY2hpbmUuIEJ1dCB0aGlzIHR1dG9yaWFsIGlzIG1vcmUgYWJvdXQgbGVhcm5pbmcgaG93IHRvIHVzZSBEZXBsb2l0IHRvIGVhc2lseSBjb21iaW5lIHJlc291cmNlcyAoY29kZSBmcm9tIEdpdEh1YiwgY29udGFpbmVycyBmcm9tIERvY2tlciBIdWIpIHRvIGFzc2VtYmxlIG11bHRpLXN0ZXAgYmlvaW5mb3JtYXRpY3Mgd29ya2Zsb3dzLiBUaGlzIGBgYGZhc3RRc2VlYGBgIHBpcGVsaW5lIHdpbGwgc2VydmUgYXMgb3VyIGR1bW15IGV4YW1wbGUgdG8gZ28gdGhyb3VnaCB0aGUgc3RlcHMuICA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2xpZmViaXQtZGVwbG9pdCIgdGFyZ2V0PSJfYmxhbmsiPjxiPkRlcGxvaXQ8L2I+PC9hPiBlbmFibGVzIHlvdSB0byBzdHJ1Y3R1cmUgeW91ciB3b3JrZmxvd3MgYXMgYW4gYXNzZW1ibHkgb2YgaW5kaXZpZHVhbCwgc2VsZiBjb250YWluZWQgdW5pdHMgb2YgY29tcHV0YXRpb24gKGBgYGpvYnNgYGApLCBieSBicmluZ2luZyBhbGwgdGhlIHJlcXVpcmVkIHJlc291cmNlcyB0byBydW4gYW4gYW5hbHlzaXMgKGRhdGEsIGNvZGUsIG9zICYgdG9vbHMsIGNvbXB1dGF0aW9uYWwgcmVzb3VyY2VzKSBpbiBvbmUgcGxhY2UuIEVhY2ggc3RlcCBpbiBhIGJpb2luZm9ybWF0aWNzIHdvcmtmbG93LCB3aWxsIG1vc3QgbGlrZWx5IHV0aWxpemUgZGlmZmVyZW50IHRvb2xzIGFuZCBoYXZlIGRpZmZlcmVudCBkZXBlbmRlbmNpZXMuIEJ1dCB3aHkgbm90IGluc3RhbGwgYWxsIHRoZSB0b29scyBvbiBvbmUgbWFjaGluZSwgYW5kIHJ1biBldmVyeXRoaW5nIHRoZXJlLCByaWdodD8gV2VsbCwgZm9yIHN0YXJ0ZXJzLCBkZXBlbmRlbmNpZXMhCgo8YnI+PGJyPgo8cCBzdHlsZT0idGV4dC1hbGlnbjpjZW50ZXI7Ij4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9kZXBlbmRlbmNpZXNfZXZlcnl3aGVyZS5qcGc/cmF3PXRydWUiPgo8L3A+Cjxicj48YnI+CgpXZSBhbGwga25vdyB0aGF0IGl0J3MgYSBodXN0bGUgdG8gbWFrZSBhbGwgdGhlIHRvb2xzIHBsYXkgbmljZSB0b2dldGhlci4gVGhlcmUgYXJlIHNldmVyYWwgcmVhc29ucyB3aHkgYmlvaW5mb3JtYXRpY2lhbnMgaGF2ZSBzdGFydGVkIGpvaW5pbmcgZGV2ZWxvcGVycyBhbmQgZGF0YSBzY2llbnRpc3RzLCBhbmQgYXJlIHNsb3dseSBhYmFuZG9uaW5nIHRoZSBtb25vbGl0aGljLCBhbGwtaW4tb25lIHBsYWNlIGFuYWx5c2lzIGVudmlyb25tZW50IGFwcHJvYWNoIGFuZCBzaGlmdGluZyB0b3dhcmRzIG1vcmUgcm9idXN0LCBtb2R1bGFyIGFuZCBwb3J0YWJsZSBlbnZpcm9ubWVudCBzb2x1dGlvbnMuIFdoaWxlIHZpcnR1YWxpemF0aW9uIGFuZCA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2JyaWVmX2hpc3Rvcnlfb2ZfY29udGFpbmVycyIgdGFyZ2V0PSJfYmxhbmsiPjxiPmNvbnRhaW5lcnMgaGF2ZSBiZWVuIGFyb3VuZCBmb3IgcXVpdGUgc29tZSB0aW1lPC9iPjwvYT4sIERvY2tlciBoYXMgcmVhbGx5IHJldm9sdXRpb25pemVkIHRoZSB3YXkgd2Ugd29yayB0aGUgcGFzdCBmZXcgeWVhcnMuIEluIGEgYmlvaW5mb3JtYXRpY3Mgd29ya2Zsb3csIGVhY2ggcHJvY2VzcyBjYW4gdXRpbGl6ZSBhIGRpZmZlcmVudCBjb250YWluZXIgYXMgYW4gZXhlY3V0aW9uIG1pY3JvZW52aXJvbm1lbnQsIHdpdGggYSBtYWluIGZvY3VzIG9uIHByZXZlbnRpbmcgZGVwZW5kZW5jaWVzIGNvbmZsaWN0cyBhbmQgZW5zdXJpbmcgcmVwcm9kdWNpYmlsaXR5LgoKPGJyPgoKVGhpcyBfX21vZHVsYXJpdHlfXyBhbHNvIHVubG9ja3MgbWFueSBjb29sIGZlYXR1cmVzIGFzIGEgcG9zaXRpdmUgc2lkZSBlZmZlY3Q6IDxicj4KPGJyPjEpIF9fUG9ydGFiaWxpdHlfXyA6IEluc3RhbGxhdGlvbiAoYW5kIGh1c3RsZSEpIGZyZWUgcnVuIG9uIGFueSBhbm90aGVyIG1hY2hpbmUKPGJyPjIpIF9fQ2xvdWRhYmlsaXR5X18gOiBFYXNpbHkgZGVwbG95IDxiPjxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvdGhlcmVpc25vY2xvdWQiIHRhcmdldD0iX2JsYW5rIj5vbiBjbG91ZDwvYT48L2I+Cjxicj4zKSBfX1JlcHJvZHVjaWJpbGl0eV9fIDogQWxsb3cgZm9yIHNvbWVvbmUgZWxzZSB0byBydW4gdGhlIHNoYW1lIHBpcGVsaW5lCjxicj40KSBfX0ZyaWN0aW9ubGVzcyBSZXRvdWNoaW5nOl9fIEFsbG93cyBmb3IgZWFzaWx5IHJlbW92aW5nLCBhZGRpbmcgb3IgcmV0b3VjaGluZyBpbmRpdmlkdWFsIHByb2Nlc3NlcyB3aXRob3V0IGFmZmVjdGluZyB0aGUgcmVzdAo8YnI+NSkgX19Jc29sYXRpb24gb2YgRGVwZW5kZW5jaWVzOl9fIENvbmZsaWN0aW5nIGRlcGVuZGVuY2llcyBhcmUgaXNvbGF0ZWQKPGJyPjYpIF9fU2FtZSB0b29sLCBkaWZmZXJlbnQgdG9vbCB2ZXJzaW9uX186IEFiaWxpdHkgdG8gdXNlIHRoZSBzYW1lIHRvb2wsIGJ1dCBhIGRpZmZlcmVudCB2ZXJzaW9uIG9mIGl0IGluIGRpZmZlcmVudCBwcm9jZXNzZXMgaWYgbmVlZGVkIChsZWdhY3kgY29kZSBpbiBiaW9pbmZvcm1hdGljcyB0b29scyBhbnlvbmU/KQoKPGJyPjxicj4KCiMgU3RlcC1CeS1TdGVwIFR1dG9yaWFsOiBEZXBsb2l0IGluIGFjdGlvbiAoYWthIGluIGdpZnMhKQoKTm93IHRoYXQgd2UgaGF2ZSBhbiBvdmVydmlldyBvZiBob3cgRGVwbG9pdCBicmluZ3MgeW91ciByZXNvdXJjZXMgaW4gb25lIHBsYWNlLCBhbmQgd2UgaGF2ZSBmb3VuZCB3aGF0IHJlc291cmNlcyB3ZSB3aWxsIG5lZWQsIHRpbWUgdG8gZ28gYmFjayB0byB0aGUgYGBgZmFzdFFzZWVgYGAgdHV0b3JpYWwgdG8gZ2VuZXJhdGUgdGhlIEZhc3RRQyByZXBvcnQuIAoKPGJyPgoKQWxsIHRoZSByZXNvdXJjZXMgdGhhdCB3ZSB3aWxsIG5lZWQgY2FuIGJlIHN1bW1hcml6ZWQgaW4gdGhlIGZvbGxvd2luZyB0YWJsZToKCjxicj4KCl9fV2hhdF9fIHwgX19XaGVyZV9fICAgICAgICAgICAgICAgCjotLS0tLS0tLS0tLS0tLS0tLXw6LS0tLS0tLS0tLS0tLQpEQVRBICAgICAgICAgICAgICB8IDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvMTAwMGZhc3RxIiB0YXJnZXQ9Il9ibGFuayI+PGI+U1JSMDYyNjM0LmZhc3RxLmd6ICgxMDAwZ2Vub21lcyBleGFtcGxlIGZpbGUpPC9iPjwvYT4KQ09ERSAgICAgICAgICAgICAgfCBgYGB3Z2V0IC1PIC0gaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9mdHBfU1JSMDYyNjM0X2Zhc3RxX2d6IHwgZ3VuemlwIC1jID4gU1JSMDYyNjM0LmZhc3RxYGBgIApPUy9UT09MUyAgICAgICAgICB8IDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvYWxwaW5lLWJhc2hfRG9ja2VyIiB0YXJnZXQ9Il9ibGFuayI+PGI+ZnJvbHZsYWQvYWxwaW5lLWJhc2g8L2I+PC9hPiAmIDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvYWxwaW5lLWJhc2hfRG9ja2VyIiB0YXJnZXQ9Il9ibGFuayI+PGI+bGlmZWJpdGFpL2Zhc3RxYzwvYj48L2E+IERvY2tlciBjb250YWluZXJzClJFU09VUkNFUyAgICAgICAgIHwgTGlmZWJpdCBDbG91ZCA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL2xvZ2luX3RvX3lvdXJfRGVwbG9pdF9hY2NvdW50IiB0YXJnZXQ9Il9ibGFuayI+PGI+KHByb3ZpZGVkIHdpdGggcmVnaXN0cmF0aW9uKTwvYj48L2E+Cgo8YnI+CgpMZXQncyBoZWFkIG92ZXIgdG8gdGhlIERlcGxvaXQgcGxhdGZvcm0gdG8gZ2VuZXJhdGUgdGhlIEZhc3RRQyByZXBvcnQgc3RlcC1ieS1zdGVwLgoKPGJyPgoKCiMjIFNURVAgMDogQ3JlYXRlIGEgYGBgUHJvamVjdGBgYCBmb3IgeW91ciBhbmFseXNpcyB0YXNrcwoKRm9yIGdlbmVyYXRpbmcgdGhlIGBgYEZhc3RRQ2BgYCByZXBvcnQsIHdlIHdpbGwgZGVwbG95IHR3byBqb2JzOgoKPGJyPgoKX18xKV9fIE9uZSBmb3IgcmV0cmlldmluZyB0aGUgZmlsZTxicj4KX18yKV9fIE9uZSBmb3IgcnVubmluZyB0aGUgRmFzdFFDIHRvb2wuIAoKPGJyPgoKSXQgaXMgYWR2aXNlZCB0byBjcmVhdGUgYSBgYGBQcm9qZWN0YGBgIHRvIGhvc3QgdGhlIGluZGl2aWR1YWwgYW5hbHlzZXMgKGFrYSBqb2JzKSBvZiBhIHdvcmtmbG93LiBUaGluayBvZiB0aGUgYGBgUHJvamVjdGBgYCBlbnRpdHkgaW4gdGhlIERlcGxvaXQgcGxhdGZvcm0sIGFzIHlvdXIgcGFyZW50IGRpcmVjdG9yeSBmb3IgdGhlIHByb2plY3QuIFRoZXJlLCB5b3Ugd2lsbCBoYXZlIGFjY2VzcyBub3Qgb25seSB0byB0aGUgX19kYXRhX18gYW5kIF9fY29kZV9fLCBidXQgYWxzbyB0byBhbGwgdGhlIF9fYGBgSm9ic2BgYF9fIHRoYXQgaGF2ZSBiZWVuIHJ1bi4gWW91IHdpbGwgaGF2ZSB0aGUgYWJpbGl0eSB0byByZXZpc2l0LCBjbG9uZSBhbmQgZGVwbG95IGFnYWluIHRoZSBzYW1lIGpvYnMgdmVyeSBlYXNpbHkuIAoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9Kb2JNb25pdG9yX1JldWx0c19DbG9uZUpvYi5naWY/cmF3PXRydWUiPgo8YnI+PGJyPgoKCjxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvbG9naW5fdG9feW91cl9EZXBsb2l0X2FjY291bnQiIHRhcmdldD0iX2JsYW5rIj48Yj5Mb2cgaW4gdG8geW91ciBEZXBsb2l0IGFjY291bnQ8L2I+PC9hPiBhbmQgYWNjZXNzIHRoZSBgYGBQcm9qZWN0c2BgYCBzZWN0aW9uIGZyb20gdGhlIGxpZ2h0IGJ1bGIgaWNvbiBgciBlbW86OmppKCJsaWdodF9idWxiIilgICBvbiB0aGUgbGVmdCBvZiB5b3VyIHNjcmVlbi4gQ2xpY2sgb24gdGhlIGdyZWVuIGBgYE5ld2BgYCBidXR0b24gb24gdGhlIHJpZ2h0LCBhbmQgcHJvdmlkZSBhIGBgYE5hbWVgYGAgYW5kIGBgYERlc2NyaXB0aW9uYGBgIGZvciB5b3VyIG5ldyBQcm9qZWN0LgoKPGJyPgpXZSBzZXQgdXAgdGhlIGBgYFByb2plY3RgYGAgZm9yIHRoaXMgZXhhbXBsZSBieSBmaWxsaW5nIGluOiAKPGJyPgoKKiBgYGBOYW1lICAgICAgIGBgYDogX18iZmFzdFFzZWUiX18KKiBgYGBEZXNjcmlwdGlvbmBgYDogX18iUXVpY2tseSBnZW5lcmF0ZSBhIEZhc3RRQyByZXBvcnQiX18KCjxicj4KCllvdSBjYW4gZmluZCBhbiBvdmVydmlldyBvZiBob3cgdGhlc2Ugc3RlcHMgbG9vayBvbiBEZXBsb2l0IGJlbG93OiAKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9jcmVhdGVfcHJvamVjdC5naWY/cmF3PXRydWUiPgoKPGJyPjxicj4KCiMjIFNURVAgMTogUG9ydCB0aGUgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9hbHBpbmUtYmFzaF9Eb2NrZXIiIHRhcmdldD0iX2JsYW5rIj48Yj5mcm9sdmxhZC9hbHBpbmUtYmFzaDwvYj48L2E+IERvY2tlciBjb250YWluZXIgdG8gRGVwbG9pdAoKQWZ0ZXIgeW91IGxvZyBpbiB0byBEZXBsb2l0LCBmaW5kIHRoZSBfX2BgYFBpcGVsaW5lc2BgYF9fIHNlY3Rpb24gZnJvbSB0aGUgbmF2aWdhdGlvbiBiYXIgb24gdGhlIGxlZnQgb2YgeW91ciBzY3JlZW4uIFdlIHdpbGwgY3JlYXRlIGEgbmV3IHBpcGVsaW5lIGluIHRoZSBgYGBQaXBlbGluZXMgPiBNeSBQaXBlbGluZXMgJiBUb29sc2BgYCBzZWN0aW9uLiAKCjxicj48YnI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvcGlwZWxpbmVzX215X3BpcGVsaW5lc19hbmRfdG9vbHMuZ2lmP3Jhdz10cnVlIj4KPGJyPjxicj4KClRoaXMgaXMgaG93IHdlIHdpbGwgcG9ydCB0aGUgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9hbHBpbmUtYmFzaF9Eb2NrZXIiIHRhcmdldD0iX2JsYW5rIj48Yj5mcm9sdmxhZC9hbHBpbmUtYmFzaDwvYj48L2E+IERvY2tlciBjb250YWluZXIgdG8gRGVwbG9pdCwgc28gdGhhdCB3ZSBjYW4gaXQgdXNlIGl0IGZvciByZXRyaWV2aW5nIHRoZSBgYGBmYXN0cS5nemBgYCBmaWxlLiBIYXZlIHRoZSBsaW5rIHRvIHRoZSBEb2NrZXIgcmVwb3NpdG9yeSByZWFkeSBmb3IgY29weStwYXN0aW5nIDxicj4KVVJMIHRvIERvY2tlciBIdWI6IDxhIGhyZWY9Imh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvYWxwaW5lLWJhc2hfRG9ja2VyIiB0YXJnZXQ9Il9ibGFuayI+PGI+aHViLmRvY2tlci5jb20vci9mcm9sdmxhZC9hbHBpbmUtYmFzaDwvYj48L2E+Cjxicj4KCkhhdmUgdGhlIGxpbmsgdG8gdGhlIERvY2tlciByZXBvc2l0b3J5IHJlYWR5IGZvciBjb3B5K3Bhc3RpbmcgYW5kIHRoZW4gZ28gYWhlYWQgYW5kIGNsaWNrIHRoZSBncmVlbiBgYGBOZXdgYGAgYnV0dG9uIG9uIHRoZSByaWdodC4KCjxicj48YnI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvZG9ja2VyaHViX3VybC5naWY/cmF3PXRydWUiPgo8YnI+PGJyPgoKQXMgc2hvd24gYWJvdmUsIHlvdSB3aWxsIGJlIHByb21wdGVkIHRvIHNlbGVjdCBfXyJXaGVyZSBhcmUgeW91IHBvcnRpbmcgeW91ciBwaXBlbGluZSBmcm9tPyJfXy4gQ2xpY2sgb24gdGhlIERvY2tlciB3aGFsZSBhbmQgdGhlbiBjbGljayBvbiBgYGBTZWxlY3RgYGAgdG8gcHJvY2VlZC4gQ29udGludWUgYnkgZmlsbGluZyBpbiB0aGUgcmVxdWlyZWQgZmllbGRzIHRvIHBvcnQgdGhlIGNvbnRhaW5lci4gWW91IGNhbiBoYXZlIGEgbG9vayBhdCBob3cgd2Ugc2V0IHRoaXMgdXAgYmVsb3cgYXMgYW4gZXhhbXBsZTogCgo8YnI+PGJyPgoKKiBgYGBEb2NrZXIgaHViIFVSTGBgYDogaHR0cHM6Ly9odWIuZG9ja2VyLmNvbS9yL2Zyb2x2bGFkL2FscGluZS1iYXNoCiogYGBgTmFtZWBgYCA6IF9fIndnZXRHdW56aXBwZXIiX18KKiBgYGBEZWZhdWx0IGNvbW1hbmRgYGA6IF8obGVhdmUgdGhpcyBibGFuaylfCiogYGBgRGVzY3JpcHRpb25gYGA6IF9fIkEgbGlnaHR3ZWlnaHQgTGludXggZGlzdHJvIGZvciB3Z2V0L2d1bnppcF9fCgo8YnI+PGJyPgoKVGhlIGBgYERlZmF1bHQgY29tbWFuZGBgYCBpcyBoYW5keSBmb3Igc2F2aW5nIHRpbWUsIGJ1dCBmb3Igbm93IHdlIHdpbGwgbGVhdmUgdGhpcyBibGFuayBzbyB0aGF0IHdlIGNhbiB1c2UgdGhlIGNvbW1hbmQgZmllbGQgYXMgYSB0ZXJtaW5hbC4gWW91IGNhbiBzZWUgYW4gb3ZlcnZpZXcgb2YgdGhlIHByb2Nlc3MgZGVzY3JpYmVkIGFib3ZlIGluIHRoZSBmb2xsb3dpbmcgZ2lmOgoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9jcmVhdGVfbmV3X3BpcGVsaW5lLmdpZj9yYXc9dHJ1ZSI+Cjxicj48YnI+PGJyPgoKCiMjIFNURVAgMjogVXNlIHRoZSBuZXdseSBjcmVhdGVkIHBpcGVsaW5lIHRvIHJldHJpZXZlIGFuZCB1bmNvbXByZXNzIHRoZSBgYGBmYXN0cS5nemBgYCBmaWxlIG9uIERlcGxvaXQKClRpbWUgdG8gdXNlIG91ciBuZXdseSBjcmVhdGVkIHBpcGVsaW5lLCBhbmQgdXRpbGl6ZSB0aGUgRG9ja2VyIGNvbnRhaW5lciB0aGF0IHdlIHBvcnRlZC4gV2Ugd2lsbCB1c2UgdGhlIGNvbW1hbmQgZmllbGQgb24gRGVwbG9pdCBhcyBhIHRlcm1pbmFsLCBhbmQgdGhlIERvY2tlciBjb250YWluZXIgYXMgb3VyIG9wZXJhdGluZyBzeXN0ZW0gdG8gZG93bmxvYWQgYW5kIGRlY29tcHJlc3MgdGhlIGZhc3RxLmd6IGZpbGUgd2Ugc2VsZWN0ZWQgZm9yIHRoaXMgZXhhbXBsZS4gV2Ugd2lsbCB0aGVuIGRlcGxveSB0aGUgam9iIGFuZCBjb21lIGJhY2sgdG8gZmluZCBvdXIgRkFTVFEgZmlsZSBpbiB0aGUgYGBgRGF0YSA+IEpvYiBSZXN1bHRzYGBgIHNlY3Rpb24gb24gdGhlIERlcGxvaXQgcGxhdGZvcm0uCgpXZSB3aWxsIHJ1biB0aGUgZm9sbG93aW5nIGNvbW1hbmQgYXMgbWVudGlvbmVkIGVhcmxpZXI6PGJyPgoKYGBgd2dldCAtTyAtIGh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvZnRwX1NSUjA2MjYzNF9mYXN0cV9neiB8IGd1bnppcCAtYyA+IFNSUjA2MjYzNC5mYXN0cWBgYAoKSGF2ZSBpdCByZWFkeSBmb3IgY29weStwYXN0aW5nLCBhbmQgbGV0J3MgZ28gYmFjayB0byB0aGUgRGVwbG9pdCBwbGF0Zm9ybS4KQWNjZXNzIHRoZSBuZXdseSBjcmVhdGVkIHBpcGVsaW5lIHRoYXQgdXRpbGl6ZXMgdGhlIEFscGluZSBMaW51eCBkb2NrZXIgY29udGFpbmVyICh3ZSBuYW1lZCBvdXJzIGB3Z2V0R3VuemlwcGVyYCkgYnkgY2xpY2tpbmc6PGJyPgoKYGBgUGlwZWxpbmVzYGBgID4gYGBgTXkgUGlwZWxpbmVzICYgVG9vbHNgYGAgPiBgYGB3Z2V0R3VuemlwcGVyYGBgIDxicj4gCgpQYXN0ZSB0aGUgY29tbWFuZCBmcm9tIGFib3ZlIGluIHRoZSBgYGBFeGVjdXRhYmxlYGBgIGZpZWxkLiBUYWtlIGEgbG9vayBhdCBob3cgdGhpcyB3aWxsIGxvb2sgb24gdGhlIERlcGxvaXQgcGxhdGZvcm0gYmVsb3c6Cgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL3dnZXRfZ3VuemlwcGVyX2NvbW1hbmQuZ2lmP3Jhdz10cnVlIj4KPGJyPjxicj4KCllvdSBjYW4gc2VlIGFuIG92ZXJ2aWV3IG9mIHRoZSBmaW5hbCBjb21tYW5kIGluIHRoZSBib3R0b20gb2YgdGhlIHNjcmVlbjogCgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL2ZpbmFsX2NvbW1hbmQuUE5HP3Jhdz10cnVlIj4KPGJyPjxicj4KCk5vdyB3ZSBhcmUgcmVhZHkgdG8gZGVwbG95IHRoZSBmaXJzdCBvZiB0aGUgX190d28gam9ic19fIGZvciByZXRyaWV2aW5nIHRoZSBGYXN0UUMgcmVwb3J0LgoKQ2xpY2sgb24gIGBgYE5leHRgYGAgb24gdGhlIHRvcCByaWdodCBvZiB5b3VyIHNjcmVlbi4gWW91IHdpbGwgYmUgcmVkaXJlY3RlZCB0byB0aGUgcGFnZSB3aGVyZSB5b3Ugd2lsbDoKPGJyPjxicj4KCjEpIFNlbGVjdCBgYGBQcm9qZWN0YGBgLCBpbiB3aGljaCB5b3VyIGpvYiBiZWxvbmdzIHRvICh3ZSBzZWxlY3RlZCBgZmFzdFFzZWVgKTxicj4KMikgU2VsZWN0IGluc3RhbmNlIGZvciBkZXBsb3lpbmcgeW91ciBqb2IgCgo8YnI+CgpXaGVuIHlvdSBzZWxlY3QgYm90aCwgeW91IGFyZSByZWFkeSB0byBzdWJtaXQgeW91ciBqb2IuIEdvIGFoZWFkIGFuZCBjbGljayBgYGBSdW4gam9iYGBgLiBZb3Ugd2lsbCBiZSByZWRpcmVjdGVkIHRvIHRoZSBgYGBKb2JzYGBgIHBhZ2UuIFlvdXIgam9iIHdpbGwgYmUgc2NoZWR1bGVkLCBpbml0aWFsaXplZCBhbmQgYmUgY29tcGxldGVkIHNob3J0bHkuIFRha2UgYSBsb29rIGJlbG93IHRvIGNoZWNrIGhvdyB0aGVzZSBzdGVwcyBzaG91bGQgbG9vayBpbiB0aGUgRGVwbG9pdCBwbGF0Zm9ybS4KCjxicj48YnI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvc2VsZWN0X3Byb2plY3Rfc2VsZWN0X2luc3RhbmNlX3NjaGVkdWxlX2pvYi5naWY/cmF3PXRydWUiPgo8YnI+PGJyPgoKQWZ0ZXIgam9iIGNvbXBsZXRpb24sIHlvdSBjYW4gYWNjZXNzIHRoZSBkZWNvbXByZXNzZWQgRkFTVFEgZmlsZSBpbiB0aGUgYGBgRGF0YSA+IEpvYiBSZXN1bHRzYGBgIHNlY3Rpb24uIApXZSBleHBlY3QgdG8gZmluZCBvdXIgRkFTVFEgZmlsZSBpbiB0aGUgYGZhc3RRc2VlYCBgYGBQcm9qZWN0YGBgIGZvbGRlciwgd2l0aCBhIGZpbGVuYW1lIGFzIHdlIGRlZmluZWQgaXQgd2hlbiByZXRyaWV2aW5nIGl0ICBgYGBTUlIwNjI2MzQuZmFzdHFgYGAuPGJyPgoKX19SZW1pbmRlcjpfXyBUaGlzIGlzIHRoZSBjb21tYW5kIHdlIHN1Ym1pdHRlZCB0byBfX2Rvd25sb2FkX18sIF9fZGVjb21wcmVzc19fIGFuZCBfX3JlbmFtZV9fIHRoZSBgYGBmYXN0cS5nemBgYCBmaWxlOjxicj4KCjxicj48YnI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvZmluYWxfY29tbWFuZC5QTkc/cmF3PXRydWUiPgo8YnI+PGJyPjxicj4KCiMjIFNURVAgMzogVXNlIHRoZSB1bmNvbXByZXNzZWQgRkFTVFEgZmlsZSBhcyBpbnB1dCB0byBgYGBsaWZlYml0YWkvZmFzdHFjYGBgIAoKT3VyIGlucHV0IGZpbGUgZm9yIHRoZSBuZXh0IGFuZCBsYXN0IHN0ZXAsIHRoZSB1bmNvbXByZXNzZWQgRkFTVFEgZmlsZSBpcyBub3cgYXZhaWxhYmxlIG9uIHRoZSBEZXBsb2l0IHBsYXRmb3JtIGluIHRoZSBgYGBEYXRhID4gSm9iIFJlc3VsdHNgYGAgc2VjdGlvbi4gV2Ugd2lsbCB1c2UgdGhpcyBmaWxlIGFzIGlucHV0IGZvciB0aGUgYGBgbGlmZWJpdGFpL2Zhc3RxY2BgYCBwaXBlbGluZSwgd2hpY2ggaXMgZXNzZW50aWFsbHkgYSBkb2NrZXJpemVkIHZlcnNpb24gb2YgdGhlIEZhc3RRQyB0b29sIGFuZCBpdHMgZGVwZW5kZW5jaWVzLiBJbiB0aGUgIGBgYFBpcGVsaW5lcyA+IFBVQkxJQyBQSVBFTElORVMgJiBUT09MUyBgYGAgc2VjdGlvbiwgc3RhcnQgdHlwaW5nIGAiZmFzdHFjImAgaW4gdGhlIHNlYXJjaCBiYXIgdG8gZWFzaWx5IGZpbmQgdGhlIGBgYGxpZmViaXRhaS9mYXN0cWNgYGAgcGlwZWxpbmUuCgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL3F1ZXJ5X3BpcHNfZmFzdHFjLmdpZj9yYXc9dHJ1ZSIgPgo8YnI+PGJyPjxicj4KClRpbWUgdG8gc2V0IHVwIHRoZSBwaXBlbGluZS4gTGV0J3M6Cjxicj4KCjEpIGRlZmluZSBpbnB1dCBkYXRhIDxicj4gCjIpIHNlbGVjdCBgYGBQcm9qZWN0YGBgIHRoYXQgdGhlIHBpcGVsaW5lIHdpbGwgYmUgYXNzb2NpYXRlZCB3aXRoIDxicj4KMykgc2VsZWN0IGluc3RhbmNlIChjbG91ZCByZXNvdXJjZXMpIAoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9zZWxlY3RfcHJvamVjdF9zZWxlY3RfaW5zdGFuY2Vfc2NoZWR1bGVfam9iLmdpZj9yYXc9dHJ1ZSIgPgo8YnI+PGJyPgoKQXMgc2hvd24gYWJvdmUgd2UgaGF2ZSBzZWxlY3RlZCBhcyBpbnB1dCBkYXRhLCB0aGUgMTAwMGdlb21lcyBGQVNUUSBmaWxlIHdlIGZldGNoZWQgZnJvbSB0aGUgRU1CTC1FQkkgRlRQIHNlcnZlciBpbiB0aGUgcHJldmlvdXMgc3RlcC4gYGBgTm9uZWBgYCBvdGhlciBwYXJhbWV0ZXJlcyBhcmUgcmVxdWlyZWQgdG8gcnVuIHRoZSBgZmFzdHFjYCBwaXBlbGluZS4gV2UgdGhlbiBzZWxlY3RlZCBhbiBpbnN0YW5jZSAoYW55dGhpbmcgbGFyZ2VyIHRoYW4gMSBDUFUgd291bGQgd29yaykuCgo8YnI+PGJyPjxicj4KCiMjIyBTVEVQIDMgLSBRdWljayB0aXA6IEVhc2lseSBydW4gYXZhaWxhYmxlIHBpcGVsaW5lcyBvbiBEZXBsb2l0CkFsbCBjdXJhdGVkIHBpcGVsaW5lcyBpbmNsdWRlZCBpbiBEZXBsb2l0J3MgbGlicmFyeSwgaW4gdGhlIGBgYFBpcGVsaW5lcyA+IFBVQkxJQyBQSVBFTElORVMgJiBUT09MU2BgYCBzZWN0aW9uLCBjb21lIHdpdGggZXhhbXBsZSBwYXJhbWV0ZXJzIGFuZCBkYXRhLiAKQ2xpY2sgPGJyPiBgYGBUcnkgd2l0aCBleGFtcGxlIGRhdGEgJiBwYXJhbWV0ZXJzYGBgIHRvOgo8YnI+Cjxicj4KCiMjIyMgMS4gRmlndXJlIG91dCB0aGUgcmVxdWlyZWQgZmxhZ3MgYW5kIGFyZ3VtZW50cyB0byBydW4gdGhlIHBpcGVsaW5lIDxicj4KZnJvbSB0aGUgRGVwbG9pdCBmaWVsZHM6IAoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9jaGVja19wYXJhbWV0ZXJzLmdpZj9yYXc9dHJ1ZSI+Cjxicj48YnI+CgpvciBmcm9tIHRoZSBmaW5hbCBjb21tYW5kIGZpZWxkOgoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9maW5hbF9jb21tYW5kX2ZpZWxkX2V4YW1wbGVfcGFyYW1zLlBORz9yYXc9dHJ1ZSI+Cjxicj48YnI+CgpUaGlzIHdheSB5b3UgY2FuIHNlZSBob3cgdGhlIGNvbW1hbmQgc2hvdWxkIGxvb2sgbGlrZSB3aGVuIHlvdSBjdXN0b21pemUgdGhlIHBpcGVsaW5lIHdpdGggeW91ciBvd24gcGFyYW1ldGVycyBhbmQgaW5wdXQgZGF0YS4gRm9yIGV4YW1wbGUsIGFzIHNob3duIGFib3ZlIHdlIGNhbiBzZWUgdGhhdCB0aGUgYGBgbGlmZWJpdGFpL2Zhc3RxY2BgYCBwaXBlbGluZSBjYW4gYmUgcnVuIGp1c3QgYnkgdHlwaW5nOgoKPGJyPjxicj4KCmBgYGZhc3RxIG5hbWVfb2ZfbXlfZmFzdHFfZmlsZS5xY2BgYCAKCjxicj48YnI+CgpOb3RpY2UgdGhlIGAuZnFgIGZpbGUgZm9ybWF0IHJlcXVpcmVkIGFuZCBgTm9uZWAgb3RoZXIgcGFyYW1ldGVycy4KCjxicj48YnI+CgojIyMjIDIuIFRha2UgYSBsb29rIGF0IG91dHB1dCBmaWxlcyBvZiBuZXcgcGlwZWxpbmVzIAoKPGJyPjxicj4gCgpZb3UgY2FuIHJ1biB3aXRoIGV4YW1wbGUgcGFyYW1ldGVycyAmIGRhdGEganVzdCB0byBjaGVjayB0aGUgb3V0cHV0IGZpbGVzIHRoYXQgdGhlIHBpcGVsaW5lIGdlbmVyYXRlcywgYW5kIGV4cGxvcmUgbmV3IHBpcGVsaW5lcyBhbmQgdG9vbHMgeW91IGhhdmVuJ3QgdXNlZCBiZWZvcmUgZm9yIHlvdXIgb3duIG9taWNzIGRhdGEuIFlvdSBtaWdodCBkaXNjb3ZlciBhbm90aGVyIHdheSB5b3UgY2FuIGludGVycm9nYXRlIHlvdXIgb21pY3MgZGF0YSBhbmQgZ2VuZXJhdGUgbW9yZSByZXN1bHRzIHRvIGluc3BlY3QuCgoKPGJyPjxicj48YnI+CgojIyBTVEVQIDQ6IEpvYiBjb21wbGV0ZWQhIFRpbWUgdG8gaW5zcGVjdCB0aGUgRmFzdFFDIGh0bWwgcmVwb3J0CgpPbmNlIHRoZSBqb2IgaGFzIGJlZW4gY29tcGxldGVkLCB5b3UgY2FuIGFjY2VzcyB5b3VyIHJlc3VsdHMgZnJvbSB0aGUgYGBgSm9iIFBhZ2VgYGAsIGFzIHNob3duIGJlbG93OgoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9hY2Nlc3NfcmVzdWx0cy5naWY/cmF3PXRydWUiPgo8YnI+PGJyPgoKVGhlIGBgYEpvYiBQYWdlYGBgIHNlcnZlcyBsaWtlIGEgc3VtbWFyeSByZXBvcnQgdGhhdCBpbmNsdWRlcyBpbmZvcm1hdGlvbiBhYm91dDoKCjxicj48YnI+CgoqIGBgYCBQaXBlbGluZSBhbmQgY29uZmlndXJhdGlvbmBgYDogTmFtZSBvZiBQaXBlbGluZSBhbmQgY29uZmlndXJhdGlvbiBzZWxlY3RlZCBmb3IgdGhpcyBqb2IgCiogYGBgIEpvYiBzdGF0dXNgYGA6IEpvYiBwcm9ncmVzcyAoJSBjb21wbGV0ZSkgb3IgaWYgaXQgaGFzIGZhaWxlZCAKKiBgYGAgUmVzb3VyY2UgTW9uaXRvcmBgYDogX19DUFVfXyB1c2FnZSwgX19SQU1fXyByZXF1aXJlbWVudHMgCiogYGBgIFRhYmxlIG92ZXJ2aWV3YGBgOiBSdW50aW1lLCBudW1iZXIgb2YgcHJvY2Vzc2VzLCB0b3RhbCBjb3N0Cgo8YnI+PGJyPgoKSXQgYWxzbyB3b3JrcyBhcyBhIHBvcnRhbCB0byBhY2Nlc3MgYWxsIHRoZSBnZW5lcmF0ZWQgb3V0cHV0IGZpbGVzIGluIHRoZSBgYGBSZXN1bHRzYGBgIHNlY3Rpb24uIApFdmVyeSBqb2IgaXMgYXNzaWduZWQgYSB1bmlxdWUgYGBgSm9iIElEYGBgLCBzbyB0aGF0IHlvdSBjYW4gcmVmZXJlbmNlIGJhY2sgdG8gdGhlbSBvciB0byByZXRyaWV2ZSBwcm9ncmFtbWF0aWNhbGx5IGluZm9ybWF0aW9uIGFib3V0IHRoZSBqb2IgdXNpbmcgeW91ciBwcml2YXRlIGtleSB0aHJvdWdoIERlcGxvaXQncyByZXN0ZnVsIEFQSS4KCjxicj48YnI+PGJyPgoKIyMgU1RFUCA1OiBTaGFyZSwgcmVwcm9kdWNlLCByZS11c2UKCgojIyMgU2hhcmUKWW91IGNhbiBhbHNvIHNoYXJlIHlvdXIgYGBgSm9iIHBhZ2VgYGAgYW5kIGhlbmNlIGFuYWx5c2lzIHJlc3VsdHMgYnkgY3JlYXRpbmcgYSBwdWJsaWMgc2hhcmFibGUgbGluayBmcm9tIHRoZSBgYGBKb2IgcGFnZWBgYCBhcyBzaG93biBiZWxvdzo8YnI+Cgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL21ha2VfcGFnZV9wdWJsaWMuZ2lmP3Jhdz10cnVlIj4KPGJyPjxicj4KCkFueW9uZSB0aGF0IGhhcyB5b3VyIHB1YmxpYyBsaW5rIGNhbiBhY2Nlc3MgeW91ciBgYGBKb2IgcGFnZWBgYC4gV2FudCB0byBzdG9wIHNoYXJpbmc/IE5vIHdvcnJpZXMhIEp1c3QgbWFrZSB0aGUgcGFnZSBwcml2YXRlIGFnYWluIGFuZCB0aGUgdXJsIHdpbGwgbGVhZCB0byBhIGN1dGUgdGFyZGlncmFkZSA0MDQgcGFnZS4gPGJyPgpUYWtlIGEgbG9vayBiZWxvdzogCgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL3VubWFrZV9wYWdlX3B1YmxpYy5naWY/cmF3PXRydWUiID4KPGJyPjxicj48YnI+CgojIyMgUmVwcm9kdWNlOiAKPGJyPjxicj4KCiMjIyMgSW1tdXRhYmxlIERvY2tlciBkaWdlc3RzIAoKSW4gdGhlIGBgYEpvYiBwYWdlYGBgIHlvdSBjYW4gZWFzaWx5IGFjY2VzcyB0aGUgRG9ja2VyIGltYWdlIGRpZ2VzdC4gPGJyPgoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9pbWFnZV9kaWdlc3QuZ2lmP3Jhdz10cnVlIj4KPGJyPjxicj4KCkRpZ2VzdHMgYXJlIHVuaXF1ZSBpbW11dGFibGUgRG9ja2VyIGNvbnRhaW5lciBpZGVudGlmaWVycyBhbmQgd2UgY2hvb3NlIHRvIHVzZSB0aG9zZSB0byBlbnN1cmUgdGhhdCB0aGUgaW1hZ2Ugd2UgdXNlIHdoZW4gY2xvbmluZyBhIGpvYiBpcyBhbHdheXMgdGhlIHNhbWUuIFRhZ3MgYXJlIG11dGFibGUgYW5kIHRoZXkgZG9uJ3QgZ3VhcmFudGVlIHJlcHJvZHVjaWJpbGl0eS4gWW91IGNhbiByZWFkIG1vcmUgYWJvdXQgaXQgaW4gdGhlIG9mZmljaWFsIERvY2tlciBEb2NzIHBhZ2UgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9Eb2NrZXJEb2NzIiB0YXJnZXQ9Il9ibGFuayI+PGI+aGVyZTwvYj48L2E+LgoKPGJyPjxicj4KPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9Eb2NrZXJEb2NzIiAgdGFyZ2V0PSJfYmxhbmsiPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL2RvY2tlcl9kaWdlc3RzLnBuZz9yYXc9dHJ1ZSI+IAo8L2E+Cjxicj48YnI+PGJyPgoKIyMjIyBHaXRIdWIgY29tbWl0cwoKPGJyPjxicj4KCklmIHlvdSBwb3J0IGEgcGlwZWxpbmUgZnJvbSBHaXRIdWIsIHlvdSBhbHNvIGhhdmUgYWNjZXNzIHRvIHRoZSBHaXRIdWIgY29tbWl0IHNvIHRoYXQgeW91IGtub3cgZXhhY3RseSB3aGF0IHJldmlzaW9uIHlvdSBoYXZlIHVzZWQgZm9yIHJ1bm5pbmcgeW91J3JlIHBpcGVsaW5lLiBTdHJhaWdodCBmcm9tIHRoZSBHaXRIdWIgZ2xvc3NhcnkgIAoKWW91IGNhbiBhY2Nlc3MgaXQgZnJvbSB0aGUgYGBgSm9iIFBhZ2UgPiBQaXBlbGluZSBhbmQgY29uZmlndXJhdGlvbj4gUmV2aXNpb25gYGAgYXMgc2hvd24gYmVsb3c6Cgo8YnI+PGJyPgo8aW1nIHNyYz0iaHR0cHM6Ly9naXRodWIuY29tL2NncHUvZmFzdFFzZWVfaGVscGVyX3JlcG8vYmxvYi9tYXN0ZXIvaW1hZ2VzL0dpdEh1YkNvbW1pdC5naWY/cmF3PXRydWUiPgo8YnI+PGJyPjxicj4KCgojIyMgIFJlLXVzZQoKSWYgeW91IGhhdmUgYWxyZWFkeSBydW4gYSBgYGBKb2JgYGAgb24gdGhlIERlcGxvaXQgcGxhdGZvcm0sIHlvdSBjYW4gZWFzaWx5IHVzZSB0aGUgYGNsb25lYCBmZWF0dXJlIHRvIHJldmlzaXQgeW91ciBwaXBlbGluZS4gQnkgY2xpY2tpbmcgb24gX19gY2xvbmVgX18geW91IHdpbGwgZ2V0IGEgZGlmZmVyZW50IGBgYEpvYiBJRGBgYCBidXQgYW4gYXV0b21hdGljIGlkZW50aWNhbCBjb25maWd1cmF0aW9uIHNldC11cCAuIFlvdSB3aWxsIGJlIHJlZGlyZWN0ZWQgaW4gdGhlIGpvYiBzdWJtaXNzaW9uIHBhZ2UuPGJyPgoKVGFrZSBhIGxvb2sgYmVsb3c6IAoKPGJyPjxicj4KPGltZyBzcmM9Imh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9jbG9uZV9qb2IuZ2lmP3Jhdz10cnVlIj4KPGJyPjxicj4KCgpBZnRlciBjbG9uaW5nLCB5b3UgY2FuIGVhc2lseSBtb2RpZnkgdGhlIHBpcGVsaW5lIGNvbmZpZ3VyYXRpb24gYXMgbGl0dGxlIChlZy4gY2hhbmdlIGlucHV0IGZpbGUgYW5kIGtlZXAgYWxsIG90aGVyIHBhcmFtZXRlcnMgdGhlIHNhbWUpIG9yIF9fYXMgbXVjaF9fIChlZy4gbW9kaWZ5IGV2ZXJ5dGhpbmcgYnkgY2hhbmdpbmcgdGhlIHBhcmFtZXRlciB2YWx1ZXMpIGFzIHlvdSBsaWtlLiBUaGlzIGhlbHBzIHlvdSBxdWlja2x5IG1vZGlmeSBhbmQgcmUtdXNlIHBpcGVsaW5lcy4gCgo8YnI+PGJyPjxicj4KCiMjIFRpbWUgZm9yIHlvdSB0byBEZXBsb2l0IQoKPGJyPjxicj4KTm93IHlvdSBhcmUgcmVhZHkgdG8gZ2l2ZSBEZXBsb2l0IGEgdHJ5IHlvdXJzZWxmISBVc2UgdGhpcyB0dXRvcmlhbCBhcyBhIGd1aWRlIHRvIGRlcGxveSB5b3VyIG93biBhbmFseXNpcyBvbiB0aGUgRGVwbG9pdCBwbGF0Zm9tLiBZb3UgY2FuIGFsc28gZG93bmxvYWQgdGhpcyB0dXRvcmlhbCBodG1sIGZpbGUgKGFuZCB0aGUgUm1hcmtkb3duIHRoYXQgY3JlYXRlZCBpdCEpIGZyb20gdGhlIERlcGxvaXQgUGxhdGZvcm0gdXNpbmcgdGhlIHNoYXJhYmxlIHBhZ2UgdXJsIGZybyBEZXBsb2l0LiBVc2UgdGhlIHNoYXJhYmxlIHVybCBiZWxvdywgZ28gdG8gcmVzdWx0cyBhbmQgZG93bmxvYWQgdGhlIGBmYXN0UXNlZV90dXRvcmlhbC5SbWRgIG9yIHByZXZpZXcgdGhlIGBmYXN0UXNlZV90dXRvcmlhbC5odG1sYDoKCjxicj48YnI+Cgo8cCBzdHlsZT0idGV4dC1hbGlnbjpjZW50ZXI7Ij4KPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9mYXN0UXNlZV9Kb2JfUGFnZSIgdGFyZ2V0PSJfYmxhbmsiPjxiPlRoZSBmYXN0UXNlZSBQcm9qZWN0IEZvbGRlciBvbiBEZXBsb2l0PC9iPjwvYT4KPC9wPgoKPGJyPjxicj4KPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9mYXN0UXNlZV9Kb2JfUGFnZSI+CjxpbWcgc3JjPSJodHRwczovL2dpdGh1Yi5jb20vY2dwdS9mYXN0UXNlZV9oZWxwZXJfcmVwby9ibG9iL21hc3Rlci9pbWFnZXMvZG93bmxvYWRfZmFzdHFzZWVfZnJvbV9kZXBsb2l0LmdpZj9yYXc9dHJ1ZSI+CjwvYT4KPGJyPjxicj48YnI+CgoKIyBBY2tub3dsZWRnZW1lbnRzCgpNYW55IHRoYW5rcyB0byA8YSBocmVmPSJodHRwczovL2xpZmViaXQucGFnZS5saW5rL1BoaWxfR2l0SHViIiB0YXJnZXQ9Il9ibGFuayI+PGI+UGhpbCBQYWxtZXI8L2I+PC9hPiBhbmQgPGEgaHJlZj0iaHR0cHM6Ly9saWZlYml0LnBhZ2UubGluay9kaW9nb19HaXRIdWIiIHRhcmdldD0iX2JsYW5rIj48Yj5EaW9nbyBTaWx2YTwvYj48L2E+IGZvciByZXByb2R1Y2liaWxpdHkgYW5kIERvY2tlciBmZWVkYmFjay4KPGJyPjxicj48YnI+PGJyPjxicj48YnI+Cg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
