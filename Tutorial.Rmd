@@ -1,5 +1,5 @@
 ---
-#title: "fastQsee: A tutorial on how to use Docker containers on the [Deploit platform](https://lifebit.page.link/deploit) to quickly generate a plot-ful FastQC report"
+title: "Tutorial"
 #date: ""
 #author:
 #- name: "Christina Chatzipantsiou"
