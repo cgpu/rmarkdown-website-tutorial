@@ -11,7 +11,7 @@
 
 
 
-<title>fastQsee: A tutorial on how to use Docker containers on the Deploit platform to quickly generate a plot-ful FastQC report</title>
+<title>Acknowledgements.utf8.md</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,9 +24,111 @@
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<script src="site_libs/navigation-1.1/sourceembed.js"></script>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #a0a0a0;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+div.sourceCode
+  { color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span. { color: #1f1c1b; } /* Normal */
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+code span.an { color: #ca60ca; } /* Annotation */
+code span.at { color: #0057ae; } /* Attribute */
+code span.bn { color: #b08000; } /* BaseN */
+code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #924c9d; } /* Char */
+code span.cn { color: #aa5500; } /* Constant */
+code span.co { color: #898887; } /* Comment */
+code span.cv { color: #0095ff; } /* CommentVar */
+code span.do { color: #607880; } /* Documentation */
+code span.dt { color: #0057ae; } /* DataType */
+code span.dv { color: #b08000; } /* DecVal */
+code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code span.fl { color: #b08000; } /* Float */
+code span.fu { color: #644a9b; } /* Function */
+code span.im { color: #ff5500; } /* Import */
+code span.in { color: #b08000; } /* Information */
+code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code span.op { color: #1f1c1b; } /* Operator */
+code span.ot { color: #006e28; } /* Other */
+code span.pp { color: #006e28; } /* Preprocessor */
+code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #ff5500; } /* SpecialString */
+code span.st { color: #bf0303; } /* String */
+code span.va { color: #0057ae; } /* Variable */
+code span.vs { color: #bf0303; } /* VerbatimString */
+code span.wa { color: #bf0303; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
 
 
 <style type="text/css">
@@ -53,9 +155,6 @@ h6 {
 }
 .table th:not([align]) {
   text-align: left;
-}
-#rmd-source-code {
-  display: none;
 }
 </style>
 
@@ -253,7 +352,6 @@ $(document).ready(function () {
 </style>
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("index.Rmd");
   window.initializeCodeFolding("hide" === "show");
 });
 </script>
@@ -404,33 +502,50 @@ div.tocify {
 <ul class="dropdown-menu" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-<li role="separator" class="divider"></li>
-<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
 </ul>
 </div>
 
 
 
-<h1 class="title toc-ignore">fastQsee: A tutorial on how to use Docker containers on the <a href="https://lifebit.page.link/deploit">Deploit platform</a> to quickly generate a plot-ful FastQC report</h1>
 
 </div>
 
 
 <p><br><br></p>
+<div id="acknowledgements" class="section level1">
+<h1>Acknowledgements</h1>
 <p><br><br></p>
-<p><img src="https://github.com/cgpu/fastQsee_helper_repo/blob/master/images/docker_x_deploit_gif_blogpost_header.gif?raw=true" /></p>
+<p><a href="https://deploit.lifebit.ai/public/jobs/5cdc431721c80900b206d1e9"><img src="http://johnmuschelli.com/jsm_2018/figure/reproc_definition.jpg" align="middle"></a></p>
 <p><br><br></p>
-<div id="introduction" class="section level2">
-<h2>1. <a href="Introduction.html">Introduction</a></h2>
+<div id="notable-mentions" class="section level2">
+<h2>Notable mentions</h2>
+<p>Many thanks to <a href="https://lifebit.page.link/Phil_GitHub" target="_blank"><b>Phil Palmer</b></a> and <a href="https://lifebit.page.link/diogo_GitHub" target="_blank"><b>Diogo Silva</b></a> for reproducibility and Docker feedback. <br><br></p>
 </div>
-<div id="step-by-step-tutorial" class="section level2">
-<h2>2. <a href="Tutorial.html">Step by STep Tutorial</a></h2>
+<div id="sessioninfo" class="section level2">
+<h2>sessionInfo</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">sessionInfo</span>()</a></code></pre></div>
+<pre><code>## R version 3.6.0 (2019-04-26)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Mojave 10.14
+## 
+## Matrix products: default
+## BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] compiler_3.6.0  magrittr_1.5    htmltools_0.3.6 tools_3.6.0    
+##  [5] yaml_2.2.0      Rcpp_1.0.1      stringi_1.4.3   rmarkdown_1.13 
+##  [9] knitr_1.23      stringr_1.4.0   xfun_0.7        digest_0.6.19  
+## [13] evaluate_0.14</code></pre>
 </div>
-<div id="acknowledgements" class="section level2">
-<h2>3. <a href="Acknowledgements.html">Acknowledgements</a></h2>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiZmFzdFFzZWU6IEEgdHV0b3JpYWwgb24gaG93IHRvIHVzZSBEb2NrZXIgY29udGFpbmVycyBvbiB0aGUgW0RlcGxvaXQgcGxhdGZvcm1dKGh0dHBzOi8vbGlmZWJpdC5wYWdlLmxpbmsvZGVwbG9pdCkgdG8gcXVpY2tseSBnZW5lcmF0ZSBhIHBsb3QtZnVsIEZhc3RRQyByZXBvcnQiCmRhdGU6ICIiCiNhdXRob3I6CiMtIG5hbWU6ICJDaHJpc3RpbmEgQ2hhdHppcGFudHNpb3UiCiMgIGVtYWlsOiAiY2hhdHppcGFudHNpb3VAZ21haWwuY29tIgpvdXRwdXQ6IAogIGh0bWxfZG9jdW1lbnQ6CiAgICB0b2M6IHRydWUKICAgIHRvY19mbG9hdDogdHJ1ZSAgCiAgICBjb2RlX2ZvbGRpbmc6IGhpZGUKICAgIGNvZGVfZG93bmxvYWQ6IHRydWUKICAgIHRoZW1lOiBjZXJ1bGVhbiAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyBtYW55IG9wdGlvbnMgZm9yIHRoZW1lLCB0aGlzIG9uZSBpcyBteSBmYXZvcml0ZS4KICAgIGhpZ2hsaWdodDoga2F0ZSAgICAgICAgICAjIHNwZWNpZmllcyB0aGUgc3ludGF4IGhpZ2hsaWdodGluZyBzdHlsZQotLS0KPGJyPjxicj4KCgo8YnI+PGJyPgoKIVtdKGh0dHBzOi8vZ2l0aHViLmNvbS9jZ3B1L2Zhc3RRc2VlX2hlbHBlcl9yZXBvL2Jsb2IvbWFzdGVyL2ltYWdlcy9kb2NrZXJfeF9kZXBsb2l0X2dpZl9ibG9ncG9zdF9oZWFkZXIuZ2lmP3Jhdz10cnVlKQoKPGJyPjxicj4KCgojIyAxLiBbSW50cm9kdWN0aW9uXShJbnRyb2R1Y3Rpb24uaHRtbCkKIyMgMi4gW1N0ZXAgYnkgU1RlcCBUdXRvcmlhbF0oVHV0b3JpYWwuaHRtbCkKIyMgMy4gW0Fja25vd2xlZGdlbWVudHNdKEFja25vd2xlZGdlbWVudHMuaHRtbCk=</div>
 
 
 </div>

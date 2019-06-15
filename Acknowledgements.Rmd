@@ -1,0 +1,36 @@
+---
+#title: "fastQsee: A tutorial on how to use Docker containers on the [Deploit platform](https://lifebit.page.link/deploit) to quickly generate a plot-ful FastQC report"
+#date: ""
+#author:
+#- name: "Christina Chatzipantsiou"
+#  email: "chatzipantsiou@gmail.com"
+output: 
+  html_document:
+    toc: true
+    toc_float: true  
+    code_folding: hide
+    code_download: false
+    theme: cerulean  
+    highlight: kate          # specifies the syntax highlighting style
+---
+<br><br>
+
+# Acknowledgements
+
+<br><br>
+
+
+<a href="https://deploit.lifebit.ai/public/jobs/5cdc431721c80900b206d1e9"><img src="http://johnmuschelli.com/jsm_2018/figure/reproc_definition.jpg" align="middle"></a>
+
+<br><br>
+
+## Notable mentions
+Many thanks to <a href="https://lifebit.page.link/Phil_GitHub" target="_blank"><b>Phil Palmer</b></a> and <a href="https://lifebit.page.link/diogo_GitHub" target="_blank"><b>Diogo Silva</b></a> for reproducibility and Docker feedback.  <br><br>
+
+## sessionInfo
+
+```{r}
+sessionInfo()
+```
+
+
