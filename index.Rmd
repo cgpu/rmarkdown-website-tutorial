@@ -25,5 +25,5 @@ output:
 
 
 ## 1. [Introduction](Introduction.html)
-## 2. [Step by STep Tutorial](Tutorial.html)
+## 2. [Step by Step Tutorial](Tutorial.html)
 ## 3. [Acknowledgements](Acknowledgements.html)
